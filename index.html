@@ -333,8 +333,6 @@
 
     .status.offline { color: #a03030; }
     .status.offline .status-dot { background: #c04040; animation: none; }
-    .status.checking { color: #3a4a60; }
-    .status.checking .status-dot { background: #3a4a60; animation: pulse 1s infinite; }
 
     .card-fach {
       font-size: 0.6rem;
@@ -623,7 +621,7 @@
   <!-- Stats -->
   <div class="stats">
     <div class="stat"><div class="stat-label">Projekte</div><div class="stat-val">5</div></div>
-    <div class="stat"><div class="stat-label">Online</div><div class="stat-val"><span class="pulse"></span><span id="online-count">–</span></div></div>
+    <div class="stat"><div class="stat-label">Online</div><div class="stat-val"><span class="pulse"></span>1</div></div>
     <div class="stat"><div class="stat-label">Fächer</div><div class="stat-val">3</div></div>
     <div class="stat"><div class="stat-label">Klassen</div><div class="stat-val">8–13</div></div>
   </div>
@@ -651,7 +649,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">⚗️</span>
-          <span class="status checking" data-url="https://alkalimetalle.wilski.tech"><span class="status-dot"></span>prüfe...</span>
+          <span class="status offline"><span class="status-dot"></span>offline</span>
         </div>
         <div>
           <div class="card-fach">Chemie · Klasse 8</div>
@@ -671,7 +669,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">🛢️</span>
-          <span class="status checking" data-url="https://alkane.wilski.tech"><span class="status-dot"></span>prüfe...</span>
+          <span class="status"><span class="status-dot"></span>online</span>
         </div>
         <div>
           <div class="card-fach">Chemie · Klasse 10</div>
@@ -689,7 +687,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">🏜️</span>
-          <span class="status checking" data-url="https://wuestenbildung.wilski.tech"><span class="status-dot"></span>prüfe...</span>
+          <span class="status offline"><span class="status-dot"></span>offline</span>
         </div>
         <div>
           <div class="card-fach">Geo · Klasse 9</div>
@@ -709,7 +707,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">📖</span>
-          <span class="status checking" data-url="https://lesetrainer.wilski.tech"><span class="status-dot"></span>prüfe...</span>
+          <span class="status offline"><span class="status-dot"></span>offline</span>
         </div>
         <div>
           <div class="card-fach">Deutsch · Sek I</div>
@@ -728,7 +726,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">🎓</span>
-          <span class="status checking" data-url="https://abiturtraining.wilski.tech"><span class="status-dot"></span>prüfe...</span>
+          <span class="status offline"><span class="status-dot"></span>offline</span>
         </div>
         <div>
           <div class="card-fach">Sek II</div>
@@ -983,73 +981,6 @@
       openPalette();
     }
   });
-
-  /* ===== AUTO-CHECK ONLINE STATUS ===== */
-  var PROBES = {
-    alkalimetalle: '/static/img/logo-gsm.jpg',
-    alkane:        '/static/img/logo-gsm.jpg',
-    wuesten:       '/static/img/logo-gsm.jpg',
-    lese:          '/static/img/logo-gsm.jpg',
-    abi:           '/static/img/logo-gsm.jpg'
-  };
-
-  function checkProject(url, probeFile, callback) {
-    var img = new Image();
-    var done = false;
-    var timeout = setTimeout(function() {
-      if (done) return;
-      done = true;
-      img.onload = img.onerror = null;
-      callback(false);
-    }, 6000);
-    img.onload = function() {
-      if (done) return;
-      done = true;
-      clearTimeout(timeout);
-      callback(true);
-    };
-    img.onerror = function() {
-      if (done) return;
-      done = true;
-      clearTimeout(timeout);
-      callback(false);
-    };
-    img.src = url + probeFile + '?_=' + Date.now();
-  }
-
-  function checkOnlineStatus() {
-    var statusElements = document.querySelectorAll('.status[data-url]');
-    var onlineCount = 0;
-    var checkedCount = 0;
-    var total = statusElements.length;
-
-    statusElements.forEach(function(el) {
-      var url = el.dataset.url;
-      var card = el.closest('.card');
-      var projectId = card ? card.dataset.id : null;
-      var probeFile = (projectId && PROBES[projectId]) || '/favicon.ico';
-
-      checkProject(url, probeFile, function(isOnline) {
-        if (isOnline) {
-          el.className = 'status';
-          el.innerHTML = '<span class="status-dot"></span>online';
-          if (projectId && PROJECTS[projectId]) PROJECTS[projectId].online = true;
-          onlineCount++;
-        } else {
-          el.className = 'status offline';
-          el.innerHTML = '<span class="status-dot"></span>offline';
-          if (projectId && PROJECTS[projectId]) PROJECTS[projectId].online = false;
-        }
-        checkedCount++;
-        if (checkedCount === total) {
-          document.getElementById('online-count').textContent = onlineCount;
-        }
-      });
-    });
-  }
-
-  checkOnlineStatus();
-  setInterval(checkOnlineStatus, 60000);
 
 })();
 </script>
