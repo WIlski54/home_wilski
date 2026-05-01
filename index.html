@@ -36,18 +36,18 @@
     }
 
     .container {
-      transition: opacity 3.8s ease, filter 3.8s ease, transform 4.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 1.8s ease, filter 1.8s ease, transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
       transform-origin: center 38%;
     }
 
     body.splash-active .container {
-      opacity: 0.18;
-      filter: blur(14px) brightness(0.5);
+      opacity: 0;
+      filter: blur(10px) brightness(0.7);
       transform: scale(0.96);
       pointer-events: none;
     }
 
-    body.splash-entering .container {
+    body.splash-revealing .container {
       opacity: 1;
       filter: blur(0) brightness(1);
       transform: scale(1);
@@ -63,9 +63,10 @@
       justify-content: center;
       cursor: pointer;
       overflow: hidden;
-      background: transparent;
+      background: #080c14;
       --portal-size: min(68vw, 760px);
-      --portal-zoom-size: 5200vw;
+      --portal-zoom-size: max(230vw, 2200px);
+      --flight-duration: 49s;
     }
 
     .splash::before {
@@ -79,7 +80,7 @@
         linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
       pointer-events: none;
-      transition: opacity 1.7s ease 2.5s;
+      transition: opacity 2.6s ease 45s;
       z-index: 0;
     }
 
@@ -90,7 +91,7 @@
       background:
         radial-gradient(circle at center, transparent 0 18%, rgba(8,12,20,0.18) 40%, rgba(8,12,20,0.62) 100%);
       pointer-events: none;
-      transition: opacity 1.8s ease 2.4s;
+      transition: opacity 2.6s ease 45s;
       z-index: 0;
     }
 
@@ -118,10 +119,11 @@
       -webkit-mask-position: center;
       mask-position: center;
       filter: saturate(1.22) contrast(1.14) brightness(1.32);
+      z-index: 1;
       transition:
-        -webkit-mask-size 4.9s cubic-bezier(0.12, 0.78, 0.12, 1),
-        mask-size 4.9s cubic-bezier(0.12, 0.78, 0.12, 1),
-        filter 4.9s cubic-bezier(0.12, 0.78, 0.12, 1);
+        -webkit-mask-size var(--flight-duration) linear,
+        mask-size var(--flight-duration) linear,
+        filter var(--flight-duration) linear;
     }
 
     .splash-glass {
@@ -133,13 +135,14 @@
       background-position: center;
       opacity: 0.64;
       mix-blend-mode: screen;
+      z-index: 2;
       filter:
         drop-shadow(0 0 18px rgba(74,139,196,0.32))
         drop-shadow(0 18px 42px rgba(0,0,0,0.48));
       transition:
-        background-size 4.9s cubic-bezier(0.12, 0.78, 0.12, 1),
-        opacity 1s ease 3.45s,
-        filter 4.9s cubic-bezier(0.12, 0.78, 0.12, 1);
+        background-size var(--flight-duration) linear,
+        opacity 2.4s ease 44s,
+        filter var(--flight-duration) linear;
     }
 
     .splash-hint {
@@ -375,7 +378,7 @@
       .detail-body { grid-template-columns: 1fr; }
       .detail-preview { display: none; }
       header { flex-direction: column; align-items: flex-start; }
-      .splash { --portal-size: 86vw; --portal-zoom-size: 6200vw; }
+      .splash { --portal-size: 86vw; --portal-zoom-size: max(330vw, 1800px); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -494,9 +497,12 @@
     document.body.classList.add('splash-entering');
     splash.classList.add('zooming');
     setTimeout(function() {
+      document.body.classList.add('splash-revealing');
+    }, 45500);
+    setTimeout(function() {
       splash.classList.add('done');
-      document.body.classList.remove('splash-active', 'splash-entering');
-    }, 5200);
+      document.body.classList.remove('splash-active', 'splash-entering', 'splash-revealing');
+    }, 50000);
   });
 
   /* ===== PROJECTS ===== */
