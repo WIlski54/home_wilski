@@ -331,6 +331,11 @@
       animation: pulse 2s infinite;
     }
 
+    .status.offline { color: #a03030; }
+    .status.offline .status-dot { background: #c04040; animation: none; }
+    .status.checking { color: #3a4a60; }
+    .status.checking .status-dot { background: #3a4a60; animation: pulse 1s infinite; }
+
     .card-fach {
       font-size: 0.6rem;
       font-weight: 600;
@@ -618,7 +623,7 @@
   <!-- Stats -->
   <div class="stats">
     <div class="stat"><div class="stat-label">Projekte</div><div class="stat-val">5</div></div>
-    <div class="stat"><div class="stat-label">Online</div><div class="stat-val"><span class="pulse"></span>5</div></div>
+    <div class="stat"><div class="stat-label">Online</div><div class="stat-val"><span class="pulse"></span><span id="online-count">–</span></div></div>
     <div class="stat"><div class="stat-label">Fächer</div><div class="stat-val">3</div></div>
     <div class="stat"><div class="stat-label">Klassen</div><div class="stat-val">8–13</div></div>
   </div>
@@ -646,7 +651,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">⚗️</span>
-          <span class="status"><span class="status-dot"></span>online</span>
+          <span class="status checking" data-url="https://alkalimetalle.wilski.tech"><span class="status-dot"></span>prüfe...</span>
         </div>
         <div>
           <div class="card-fach">Chemie · Klasse 8</div>
@@ -666,7 +671,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">🛢️</span>
-          <span class="status"><span class="status-dot"></span></span>
+          <span class="status checking" data-url="https://alkane.wilski.tech"><span class="status-dot"></span>prüfe...</span>
         </div>
         <div>
           <div class="card-fach">Chemie · Klasse 10</div>
@@ -684,7 +689,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">🏜️</span>
-          <span class="status" style="color:#3a9460"><span class="status-dot"></span></span>
+          <span class="status checking" data-url="https://wuestenbildung.wilski.tech"><span class="status-dot"></span>prüfe...</span>
         </div>
         <div>
           <div class="card-fach">Geo · Klasse 9</div>
@@ -704,7 +709,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">📖</span>
-          <span class="status" style="color:#b07a10"><span class="status-dot" style="background:#b07a10"></span></span>
+          <span class="status checking" data-url="https://lesetrainer.wilski.tech"><span class="status-dot"></span>prüfe...</span>
         </div>
         <div>
           <div class="card-fach">Deutsch · Sek I</div>
@@ -723,7 +728,7 @@
         </svg>
         <div class="card-top">
           <span class="card-icon">🎓</span>
-          <span class="status" style="color:#556"><span class="status-dot" style="background:#556"></span></span>
+          <span class="status checking" data-url="https://abiturtraining.wilski.tech"><span class="status-dot"></span>prüfe...</span>
         </div>
         <div>
           <div class="card-fach">Sek II</div>
@@ -748,7 +753,7 @@
   /* ===== PROJEKTDATEN ===== */
   const PROJECTS = {
     alkalimetalle: {
-      cat: 'chemie', icon: '⚗️',
+      cat: 'chemie', icon: '⚗️', online: false,
       fach: 'Chemie · Klasse 8',
       title: 'Alkalimetalle',
       tagline: 'Lithium, Natrium, Kalium und ihre Verwandten',
@@ -764,7 +769,7 @@
       url: 'https://alkalimetalle.wilski.tech'
     },
     alkane: {
-      cat: 'chemie', icon: '🛢️',
+      cat: 'chemie', icon: '🛢️', online: true,
       fach: 'Chemie · Klasse 10',
       title: 'Alkane',
       tagline: 'Die homologe Reihe der Kohlenwasserstoffe',
@@ -778,7 +783,7 @@
       url: 'https://alkane.wilski.tech'
     },
     wuesten: {
-      cat: 'geo', icon: '🏜️',
+      cat: 'geo', icon: '🏜️', online: false,
       fach: 'Geografie · Klasse 9',
       title: 'Wüstenbildung',
       tagline: 'Desertifikation als globale Herausforderung',
@@ -792,7 +797,7 @@
       url: 'https://wuestenbildung.wilski.tech'
     },
     lese: {
-      cat: 'deutsch', icon: '📖',
+      cat: 'deutsch', icon: '📖', online: false,
       fach: 'Deutsch · Sek I',
       title: 'Lesetrainer',
       tagline: 'Lesekompetenz Schritt für Schritt aufbauen',
@@ -806,7 +811,7 @@
       url: 'https://lesetrainer.wilski.tech'
     },
     abi: {
-      cat: 'allg', icon: '🎓',
+      cat: 'allg', icon: '🎓', online: false,
       fach: 'Sek II',
       title: 'Abiturtraining',
       tagline: 'Gezielte Vorbereitung auf das Zentralabitur',
@@ -852,8 +857,8 @@
       </svg>
       <div class="detail-head">
         <button class="detail-back" id="detail-close">← Zurück zur Übersicht</button>
-        <div class="detail-status">
-          <span class="status-dot" style="background:${col.dot}"></span>online
+        <div class="detail-status" style="color:${p.online ? '#3a9460' : '#a03030'}">
+          <span class="status-dot" style="background:${p.online ? col.dot : '#c04040'}; ${p.online ? '' : 'animation:none'}"></span>${p.online ? 'online' : 'offline'}
         </div>
       </div>
       <div class="detail-body">
@@ -978,6 +983,41 @@
       openPalette();
     }
   });
+
+  /* ===== AUTO-CHECK ONLINE STATUS ===== */
+  function checkOnlineStatus() {
+    var statusElements = document.querySelectorAll('.status[data-url]');
+    var onlineCount = 0;
+    var checkedCount = 0;
+    var total = statusElements.length;
+
+    statusElements.forEach(function(el) {
+      var url = el.dataset.url;
+      var projectId = el.closest('.card').dataset.id;
+
+      fetch(url, { mode: 'no-cors', cache: 'no-store' })
+        .then(function() {
+          el.className = 'status';
+          el.innerHTML = '<span class="status-dot"></span>online';
+          if (PROJECTS[projectId]) PROJECTS[projectId].online = true;
+          onlineCount++;
+        })
+        .catch(function() {
+          el.className = 'status offline';
+          el.innerHTML = '<span class="status-dot"></span>offline';
+          if (PROJECTS[projectId]) PROJECTS[projectId].online = false;
+        })
+        .finally(function() {
+          checkedCount++;
+          if (checkedCount === total) {
+            document.getElementById('online-count').textContent = onlineCount;
+          }
+        });
+    });
+  }
+
+  checkOnlineStatus();
+  setInterval(checkOnlineStatus, 60000);
 
 })();
 </script>
