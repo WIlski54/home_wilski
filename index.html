@@ -985,6 +985,38 @@
   });
 
   /* ===== AUTO-CHECK ONLINE STATUS ===== */
+  var PROBES = {
+    alkalimetalle: '/static/img/logo-gsm.jpg',
+    alkane:        '/static/img/logo-gsm.jpg',
+    wuesten:       '/static/img/logo-gsm.jpg',
+    lese:          '/static/img/logo-gsm.jpg',
+    abi:           '/static/img/logo-gsm.jpg'
+  };
+
+  function checkProject(url, probeFile, callback) {
+    var img = new Image();
+    var done = false;
+    var timeout = setTimeout(function() {
+      if (done) return;
+      done = true;
+      img.onload = img.onerror = null;
+      callback(false);
+    }, 6000);
+    img.onload = function() {
+      if (done) return;
+      done = true;
+      clearTimeout(timeout);
+      callback(true);
+    };
+    img.onerror = function() {
+      if (done) return;
+      done = true;
+      clearTimeout(timeout);
+      callback(false);
+    };
+    img.src = url + probeFile + '?_=' + Date.now();
+  }
+
   function checkOnlineStatus() {
     var statusElements = document.querySelectorAll('.status[data-url]');
     var onlineCount = 0;
@@ -993,26 +1025,26 @@
 
     statusElements.forEach(function(el) {
       var url = el.dataset.url;
-      var projectId = el.closest('.card').dataset.id;
+      var card = el.closest('.card');
+      var projectId = card ? card.dataset.id : null;
+      var probeFile = (projectId && PROBES[projectId]) || '/favicon.ico';
 
-      fetch(url, { mode: 'no-cors', cache: 'no-store' })
-        .then(function() {
+      checkProject(url, probeFile, function(isOnline) {
+        if (isOnline) {
           el.className = 'status';
           el.innerHTML = '<span class="status-dot"></span>online';
-          if (PROJECTS[projectId]) PROJECTS[projectId].online = true;
+          if (projectId && PROJECTS[projectId]) PROJECTS[projectId].online = true;
           onlineCount++;
-        })
-        .catch(function() {
+        } else {
           el.className = 'status offline';
           el.innerHTML = '<span class="status-dot"></span>offline';
-          if (PROJECTS[projectId]) PROJECTS[projectId].online = false;
-        })
-        .finally(function() {
-          checkedCount++;
-          if (checkedCount === total) {
-            document.getElementById('online-count').textContent = onlineCount;
-          }
-        });
+          if (projectId && PROJECTS[projectId]) PROJECTS[projectId].online = false;
+        }
+        checkedCount++;
+        if (checkedCount === total) {
+          document.getElementById('online-count').textContent = onlineCount;
+        }
+      });
     });
   }
 
