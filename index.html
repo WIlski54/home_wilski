@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wilski · Unterrichtsprojekte</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e8e8e8;
+      min-height: 100vh;
+      padding: 3rem 1.5rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 3rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 0.75rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #1e1e2e;
+      margin: 1.75rem 0;
+    }
+
+    /* Flip Card */
+    .flip-container {
+      height: 190px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+    }
+
+    .flip-container.flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-front,
+    .flip-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 14px;
+      border: 1px solid #1e1e2e;
+      background: #161622;
+      padding: 1.25rem;
+    }
+
+    .flip-back {
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .flip-front:hover,
+    .flip-back:hover {
+      border-color: #2a2a3e;
+    }
+
+    .card-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .card-fach {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-name {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #e8e8e8;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-desc {
+      font-size: 0.75rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 20px;
+      margin-top: 0.75rem;
+    }
+
+    .badge-chemie  { background: #0e2a4a; color: #5b9bd5; }
+    .badge-geo     { background: #0e2e1a; color: #4caf7d; }
+    .badge-deutsch { background: #2e2000; color: #c8910a; }
+    .badge-allg    { background: #1e1e2e; color: #888; }
+
+    /* Rückseite */
+    .back-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #e8e8e8;
+      margin-bottom: 0.5rem;
+    }
+
+    .back-text {
+      font-size: 0.75rem;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 7px;
+      border-radius: 8px;
+      border: 1px solid #2a2a3e;
+      color: #e8e8e8;
+      text-decoration: none;
+      margin-top: 0.75rem;
+      transition: background 0.15s;
+    }
+
+    .back-link:hover {
+      background: #1e1e2e;
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: #444;
+      margin-top: 0.5rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.75rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Wilski · Unterrichtsprojekte</h1>
+      <p>Gesamtschule Meiderich &middot; Digitale Lernmaterialien</p>
+    </header>
+
+    <!-- Chemie -->
+    <p class="section-label">Chemie</p>
+    <div class="grid">
+
+      <div class="flip-container" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="card-icon">⚗️</span>
+            <p class="card-fach">Klasse 8</p>
+            <p class="card-name">Alkalimetalle</p>
+            <p class="card-desc">Interaktives Arbeitsblatt mit KI-Tutor</p>
+            <span class="badge badge-chemie">Chemie</span>
+          </div>
+          <div class="flip-back">
+            <div>
+              <p class="back-title">⚗️ Alkalimetalle</p>
+              <p class="back-text">8 Aufgaben mit Differenzierung A/B/C, KI-Bewertung von Freitextantworten und Echtzeit-Dashboard für die Lehrkraft.</p>
+            </div>
+            <a class="back-link" href="https://alkalimetalle.wilski.tech">Zum Projekt →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-container" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="card-icon">🛢️</span>
+            <p class="card-fach">Klasse 10</p>
+            <p class="card-name">Alkane</p>
+            <p class="card-desc">Organische Chemie · Kohlenwasserstoffe</p>
+            <span class="badge badge-chemie">Chemie</span>
+          </div>
+          <div class="flip-back">
+            <div>
+              <p class="back-title">🛢️ Alkane</p>
+              <p class="back-text">Homologe Reihe, Nomenklatur und Eigenschaften der gesättigten Kohlenwasserstoffe.</p>
+            </div>
+            <a class="back-link" href="https://alkane.wilski.tech">Zum Projekt →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <p class="hint">Karte anklicken zum Umdrehen</p>
+
+    <hr>
+
+    <!-- Geografie -->
+    <p class="section-label">Geografie</p>
+    <div class="grid">
+
+      <div class="flip-container" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="card-icon">🏜️</span>
+            <p class="card-fach">Klasse 9</p>
+            <p class="card-name">Wüstenbildung</p>
+            <p class="card-desc">Desertifikation und Klimawandel</p>
+            <span class="badge badge-geo">Geografie</span>
+          </div>
+          <div class="flip-back">
+            <div>
+              <p class="back-title">🏜️ Wüstenbildung</p>
+              <p class="back-text">Ursachen und Folgen der Desertifikation, interaktive Karten und Fallbeispiele aus verschiedenen Regionen.</p>
+            </div>
+            <a class="back-link" href="https://wuestenbildung.wilski.tech">Zum Projekt →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr>
+
+    <!-- Sprache & Abitur -->
+    <p class="section-label">Sprache &amp; Abitur</p>
+    <div class="grid">
+
+      <div class="flip-container" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="card-icon">📖</span>
+            <p class="card-fach">Sek I</p>
+            <p class="card-name">Lesetrainer</p>
+            <p class="card-desc">Lesekompetenz · Textverstehen</p>
+            <span class="badge badge-deutsch">Deutsch</span>
+          </div>
+          <div class="flip-back">
+            <div>
+              <p class="back-title">📖 Lesetrainer</p>
+              <p class="back-text">Adaptives Training zur Lesekompetenz mit Verständnisfragen und automatischer Auswertung.</p>
+            </div>
+            <a class="back-link" href="https://lesetrainer.wilski.tech">Zum Projekt →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-container" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="card-icon">🎓</span>
+            <p class="card-fach">Sek II</p>
+            <p class="card-name">Abiturtraining</p>
+            <p class="card-desc">Prüfungsvorbereitung</p>
+            <span class="badge badge-allg">Allgemein</span>
+          </div>
+          <div class="flip-back">
+            <div>
+              <p class="back-title">🎓 Abiturtraining</p>
+              <p class="back-text">Gezielte Vorbereitung auf zentrale Abiturprüfungen mit Übungsaufgaben und Musterlösungen.</p>
+            </div>
+            <a class="back-link" href="https://abiturtraining.wilski.tech">Zum Projekt →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>Gesamtschule Meiderich &middot; S. Wilski &middot; 2025/26</footer>
+
+  </div>
+</body>
+</html>
