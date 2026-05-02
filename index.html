@@ -36,21 +36,35 @@
     }
 
     .container {
-      transition: opacity 1.8s ease, filter 1.8s ease, transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.9s ease, filter 1.4s ease, transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
       transform-origin: center 38%;
     }
 
     body.splash-active .container {
       opacity: 0;
-      filter: blur(10px) brightness(0.7);
-      transform: scale(0.96);
+      filter: blur(16px) brightness(0.55);
+      transform: scale(1.14);
       pointer-events: none;
+    }
+
+    body.splash-entering .container {
+      opacity: 0;
+      filter: blur(14px) brightness(0.6);
+      transform: scale(1.1);
+      transition:
+        opacity 0.72s ease 2.05s,
+        filter 0.95s ease 2.05s,
+        transform 4.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     body.splash-revealing .container {
       opacity: 1;
       filter: blur(0) brightness(1);
       transform: scale(1);
+      transition:
+        opacity 0.5s ease,
+        filter 0.85s ease,
+        transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .splash {
@@ -65,8 +79,12 @@
       overflow: hidden;
       background: #080c14;
       --portal-size: min(68vw, 760px);
-      --portal-zoom-size: max(230vw, 2200px);
-      --flight-duration: 49s;
+      --portal-zoom-size: max(760vw, 6200px);
+      --flight-duration: 4.2s;
+      transition:
+        background-color 0.8s ease 1.65s,
+        opacity 0.42s ease 3.9s;
+      perspective: 1000px;
     }
 
     .splash::before {
@@ -80,7 +98,9 @@
         linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
       pointer-events: none;
-      transition: opacity 2.6s ease 45s;
+      transition:
+        opacity 0.7s ease 0.9s,
+        transform var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1);
       z-index: 0;
     }
 
@@ -91,7 +111,10 @@
       background:
         radial-gradient(circle at center, transparent 0 18%, rgba(8,12,20,0.18) 40%, rgba(8,12,20,0.62) 100%);
       pointer-events: none;
-      transition: opacity 2.6s ease 45s;
+      transform: scale(1);
+      transition:
+        opacity 0.9s ease 2.55s,
+        transform var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1);
       z-index: 0;
     }
 
@@ -100,6 +123,11 @@
       inset: 0;
       z-index: 1;
       pointer-events: none;
+      opacity: 1;
+      transform: translateZ(0) scale(1);
+      transform-origin: center;
+      transition: opacity 0.46s ease 1.38s;
+      will-change: opacity, transform, filter;
     }
 
     .splash-logo-mask {
@@ -121,9 +149,10 @@
       filter: saturate(1.22) contrast(1.14) brightness(1.32);
       z-index: 1;
       transition:
-        -webkit-mask-size var(--flight-duration) linear,
-        mask-size var(--flight-duration) linear,
-        filter var(--flight-duration) linear;
+        -webkit-mask-size var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1),
+        mask-size var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1),
+        background-position var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1),
+        filter var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1);
     }
 
     .splash-glass {
@@ -135,14 +164,47 @@
       background-position: center;
       opacity: 0.64;
       mix-blend-mode: screen;
-      z-index: 2;
+      z-index: 3;
       filter:
         drop-shadow(0 0 18px rgba(74,139,196,0.32))
         drop-shadow(0 18px 42px rgba(0,0,0,0.48));
       transition:
-        background-size var(--flight-duration) linear,
-        opacity 2.4s ease 44s,
-        filter var(--flight-duration) linear;
+        background-size var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1),
+        opacity 0.35s ease 3.65s,
+        filter var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1);
+    }
+
+    .splash-tunnel {
+      position: absolute;
+      inset: -18%;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.44) rotate(0deg);
+      transform-origin: center;
+      background:
+        repeating-conic-gradient(from 0deg at 50% 50%,
+          transparent 0deg 7deg,
+          rgba(74,139,196,0.18) 8deg 9deg,
+          transparent 10deg 18deg);
+      -webkit-mask-image: radial-gradient(circle at center, transparent 0 16%, #000 30% 67%, transparent 78%);
+      mask-image: radial-gradient(circle at center, transparent 0 16%, #000 30% 67%, transparent 78%);
+      mix-blend-mode: screen;
+      will-change: opacity, transform;
+    }
+
+    .splash-flash {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      opacity: 0;
+      background:
+        radial-gradient(circle at center,
+          rgba(230,246,255,0.72) 0 7%,
+          rgba(74,139,196,0.24) 18%,
+          transparent 42%);
+      mix-blend-mode: screen;
     }
 
     .splash-hint {
@@ -153,7 +215,7 @@
       color: #2a3a50;
       letter-spacing: 2px;
       text-transform: uppercase;
-      transition: opacity 0.55s;
+      transition: opacity 0.28s, transform 0.28s;
       animation: hint-pulse 2.5s infinite;
     }
 
@@ -162,15 +224,46 @@
       50% { opacity: 0.8; }
     }
 
+    @keyframes flight-camera {
+      0% { transform: translateZ(0) scale(1); filter: blur(0); }
+      55% { transform: translateZ(90px) scale(1.03); filter: blur(0); }
+      100% { transform: translateZ(220px) scale(1.1); filter: blur(1px); }
+    }
+
+    @keyframes tunnel-rush {
+      0% { opacity: 0; transform: scale(0.42) rotate(0deg); }
+      22% { opacity: 0.16; }
+      72% { opacity: 0.42; }
+      100% { opacity: 0; transform: scale(2.85) rotate(24deg); }
+    }
+
+    @keyframes portal-flash {
+      0%, 70% { opacity: 0; }
+      84% { opacity: 0.52; }
+      100% { opacity: 0; }
+    }
+
+    .splash.zooming {
+      background-color: rgba(8, 12, 20, 0);
+      opacity: 0;
+    }
+
     .splash.zooming::before,
     .splash.zooming::after {
       opacity: 0;
+      transform: scale(1.28);
+    }
+
+    .splash.zooming .splash-logo-wrap {
+      opacity: 0;
+      animation: flight-camera var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1) forwards;
     }
 
     .splash.zooming .splash-logo-mask {
       -webkit-mask-size: var(--portal-zoom-size) auto;
       mask-size: var(--portal-zoom-size) auto;
-      filter: saturate(1.06) contrast(1.02) brightness(1);
+      background-position: center 46%;
+      filter: saturate(1.02) contrast(1.02) brightness(1.08);
     }
 
     .splash.zooming .splash-glass {
@@ -181,8 +274,18 @@
         drop-shadow(0 2px 8px rgba(0,0,0,0.1));
     }
 
+    .splash.zooming .splash-tunnel {
+      animation: tunnel-rush var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1) forwards;
+    }
+
+    .splash.zooming .splash-flash {
+      animation: portal-flash var(--flight-duration) ease-out forwards;
+    }
+
     .splash.zooming .splash-hint {
       opacity: 0;
+      transform: translateY(8px) scale(0.94);
+      animation: none;
     }
 
     .splash.done {
@@ -378,7 +481,7 @@
       .detail-body { grid-template-columns: 1fr; }
       .detail-preview { display: none; }
       header { flex-direction: column; align-items: flex-start; }
-      .splash { --portal-size: 86vw; --portal-zoom-size: max(330vw, 1800px); }
+      .splash { --portal-size: 86vw; --portal-zoom-size: max(920vw, 4800px); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -387,6 +490,8 @@
       .splash::after,
       .splash-logo-mask,
       .splash-glass,
+      .splash-tunnel,
+      .splash-flash,
       .splash-hint {
         transition-duration: 0.01ms !important;
         transition-delay: 0ms !important;
@@ -403,6 +508,8 @@
     <div class="splash-logo-mask"></div>
     <div class="splash-glass"></div>
   </div>
+  <div class="splash-tunnel"></div>
+  <div class="splash-flash"></div>
   <div class="splash-hint">Klicke zum Betreten</div>
 </div>
 
@@ -498,11 +605,11 @@
     splash.classList.add('zooming');
     setTimeout(function() {
       document.body.classList.add('splash-revealing');
-    }, 45500);
+    }, 2200);
     setTimeout(function() {
       splash.classList.add('done');
       document.body.classList.remove('splash-active', 'splash-entering', 'splash-revealing');
-    }, 50000);
+    }, 4700);
   });
 
   /* ===== PROJECTS ===== */
