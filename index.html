@@ -209,6 +209,35 @@
       mix-blend-mode: screen;
     }
 
+    .splash-info {
+      position: absolute;
+      left: clamp(24px, 5vw, 72px);
+      bottom: clamp(28px, 6vh, 72px);
+      z-index: 3;
+      width: min(340px, calc(100vw - 48px));
+      padding-left: 18px;
+      border-left: 1px solid rgba(74, 139, 196, 0.32);
+      color: rgba(156, 184, 220, 0.58);
+      pointer-events: none;
+      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.48);
+      transition: opacity 0.28s, transform 0.28s;
+    }
+
+    .splash-info-title {
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(202, 222, 246, 0.72);
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .splash-info-text {
+      font-size: 0.78rem;
+      line-height: 1.55;
+      overflow-wrap: break-word;
+    }
+
     .splash-hint {
       position: relative;
       z-index: 3;
@@ -287,6 +316,11 @@
       opacity: 0;
       transform: translateY(8px) scale(0.94);
       animation: none;
+    }
+
+    .splash.zooming .splash-info {
+      opacity: 0;
+      transform: translateY(8px);
     }
 
     .splash.done {
@@ -483,6 +517,18 @@
       .detail-preview { display: none; }
       header { flex-direction: column; align-items: flex-start; }
       .splash { --portal-size: 86vw; --portal-zoom-size: max(920vw, 4800px); }
+      .splash-info {
+        left: 22px;
+        right: 22px;
+        bottom: 24px;
+        width: min(316px, calc(100vw - 44px));
+        max-width: none;
+        padding-left: 14px;
+      }
+      .splash-info-title,
+      .splash-info-text {
+        font-size: 0.7rem;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -493,6 +539,7 @@
       .splash-glass,
       .splash-tunnel,
       .splash-flash,
+      .splash-info,
       .splash-hint {
         transition-duration: 0.01ms !important;
         transition-delay: 0ms !important;
@@ -511,6 +558,10 @@
   </div>
   <div class="splash-tunnel"></div>
   <div class="splash-flash"></div>
+  <div class="splash-info" aria-label="Informationen zur Plattform">
+    <div class="splash-info-title">Digitale Lernplattform</div>
+    <p class="splash-info-text">Unterrichtsprojekte und digitale Lernmaterialien von S. Wilski f&uuml;r die Gesamtschule Meiderich. Einige Module nutzen externe Dienste oder KI-gest&uuml;tzte R&uuml;ckmeldungen und dienen schulischen Lernzwecken.</p>
+  </div>
   <div class="splash-hint">Klicke zum Betreten</div>
 </div>
 
