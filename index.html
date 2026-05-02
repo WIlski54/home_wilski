@@ -133,11 +133,11 @@
     .splash-logo-mask {
       position: absolute;
       inset: 0;
-      background-image: url('hintergrund.png');
-      background-size: cover;
-      background-position: center 8%;
-      -webkit-mask-image: url('logo-gsm.png?v=20260502-splash');
-      mask-image: url('logo-gsm.png?v=20260502-splash');
+      background:
+        radial-gradient(ellipse 70% 58% at 44% 42%, rgba(8, 22, 44, 0.96) 0%, rgba(2, 8, 18, 0.98) 66%, rgba(1, 4, 10, 1) 100%),
+        linear-gradient(135deg, rgba(27, 80, 132, 0.18), rgba(1, 5, 12, 0.88) 58%, rgba(33, 88, 140, 0.12));
+      -webkit-mask-image: url('logo-gsm.png?v=20260502-clean-logo');
+      mask-image: url('logo-gsm.png?v=20260502-clean-logo');
       -webkit-mask-mode: alpha;
       mask-mode: alpha;
       -webkit-mask-size: var(--portal-size) auto;
@@ -151,21 +151,23 @@
       transition:
         -webkit-mask-size var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1),
         mask-size var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1),
-        background-position var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1),
         filter var(--flight-duration) cubic-bezier(0.74, 0, 0.12, 1);
     }
 
     .splash-glass {
       position: absolute;
       inset: 0;
-      background-image: url('glaslogo.png?v=20260502-splash');
+      background-image: url('glaslogo.png?v=20260502-clean-logo');
       background-size: var(--portal-size) auto;
       background-repeat: no-repeat;
       background-position: center;
-      opacity: 0.64;
-      mix-blend-mode: screen;
+      opacity: 0.86;
+      mix-blend-mode: normal;
       z-index: 3;
       filter:
+        saturate(0.74)
+        contrast(1.16)
+        brightness(0.92)
         drop-shadow(0 0 18px rgba(74,139,196,0.32))
         drop-shadow(0 18px 42px rgba(0,0,0,0.48));
       transition:
@@ -262,7 +264,6 @@
     .splash.zooming .splash-logo-mask {
       -webkit-mask-size: var(--portal-zoom-size) auto;
       mask-size: var(--portal-zoom-size) auto;
-      background-position: center 46%;
       filter: saturate(1.02) contrast(1.02) brightness(1.08);
     }
 
@@ -529,7 +530,7 @@
 
   <header>
     <div class="brand">
-      <img src="logo-gsm.png?v=20260502-splash" alt="GSM Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <img src="logo-gsm.png?v=20260502-clean-logo" alt="GSM Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="brand-fallback" style="display:none">GSM</div>
       <div>
         <h1>Unterrichtsprojekte</h1>
