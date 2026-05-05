@@ -597,7 +597,7 @@
 
   <div class="stats">
     <div class="stat"><div class="stat-label">Projekte</div><div class="stat-val">5</div></div>
-    <div class="stat"><div class="stat-label">Online</div><div class="stat-val"><span class="pulse"></span>1</div></div>
+    <div class="stat"><div class="stat-label">Online</div><div class="stat-val"><span class="pulse"></span>3</div></div>
     <div class="stat"><div class="stat-label">Fächer</div><div class="stat-val">3</div></div>
     <div class="stat"><div class="stat-label">Klassen</div><div class="stat-val">8–13</div></div>
   </div>
@@ -614,7 +614,7 @@
     <div class="grid" id="grid">
       <div class="card size-lg cat-chemie" data-id="alkalimetalle">
         <svg class="card-bg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><circle cx="160" cy="40" r="70" fill="none" stroke="#4a8bc4" stroke-width="1"/><circle cx="160" cy="40" r="45" fill="none" stroke="#4a8bc4" stroke-width="0.5"/><circle cx="50" cy="155" r="35" fill="none" stroke="#4a8bc4" stroke-width="0.5"/></svg>
-        <div class="card-top"><span class="card-icon">⚗️</span><span class="status offline"><span class="status-dot"></span>offline</span></div>
+        <div class="card-top"><span class="card-icon">⚗️</span><span class="status"><span class="status-dot"></span>online</span></div>
         <div><div class="card-fach">Chemie · Klasse 8</div><div class="card-name">Alkalimetalle</div><div class="card-desc">8 Aufgaben mit Differenzierung A/B/C, KI-Tutor, Echtzeit-Dashboard</div></div>
         <div class="card-meta"><span>Flagship-Projekt</span><span>↗</span></div>
       </div>
@@ -630,7 +630,7 @@
       </div>
       <div class="card size-sm cat-deutsch" data-id="lese">
         <svg class="card-bg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><line x1="20" y1="45" x2="180" y2="45" stroke="#b07a10" stroke-width="1.2"/><line x1="20" y1="75" x2="150" y2="75" stroke="#b07a10" stroke-width="0.6"/><line x1="20" y1="105" x2="165" y2="105" stroke="#b07a10" stroke-width="0.6"/></svg>
-        <div class="card-top"><span class="card-icon">📖</span><span class="status offline"><span class="status-dot"></span>offline</span></div>
+        <div class="card-top"><span class="card-icon">📖</span><span class="status"><span class="status-dot"></span>online</span></div>
         <div><div class="card-fach">Deutsch · Sek I</div><div class="card-name">Lesetrainer</div><div class="card-desc">Textverstehen</div></div>
       </div>
       <div class="card size-sm cat-allg" data-id="abi">
@@ -666,10 +666,10 @@
 
   /* ===== PROJECTS ===== */
   var PROJECTS = {
-    alkalimetalle: { cat:'chemie', icon:'⚗️', online:false, fach:'Chemie · Klasse 8', title:'Alkalimetalle', tagline:'Lithium, Natrium, Kalium und ihre Verwandten', desc:'Ein interaktives Arbeitsblatt, das Schülerinnen und Schülern die Reaktivität der Alkalimetalle näherbringt. Mit einem KI-Tutor, der Freitextantworten bewertet, und einem Echtzeit-Dashboard, das der Lehrkraft jederzeit den Lernstand der Klasse zeigt.', features:['8 Aufgaben mit drei Schwierigkeitsstufen (A / B / C)','KI-gestützte Bewertung von Freitextantworten via Google Gemini','Lehrer-Dashboard mit Live-Übersicht aller Schülerinnen und Schüler','DSGVO-konform durch Pseudonym-Login','Token-System mit globalem Tageslimit','SocketIO-basiertes Echtzeit-Update ohne Reload'], url:'https://alkalimetalle.wilski.tech' },
+    alkalimetalle: { cat:'chemie', icon:'⚗️', online:true, fach:'Chemie · Klasse 8', title:'Alkalimetalle', tagline:'Lithium, Natrium, Kalium und ihre Verwandten', desc:'Ein interaktives Arbeitsblatt, das Schülerinnen und Schülern die Reaktivität der Alkalimetalle näherbringt. Mit einem KI-Tutor, der Freitextantworten bewertet, und einem Echtzeit-Dashboard, das der Lehrkraft jederzeit den Lernstand der Klasse zeigt.', features:['8 Aufgaben mit drei Schwierigkeitsstufen (A / B / C)','KI-gestützte Bewertung von Freitextantworten via Google Gemini','Lehrer-Dashboard mit Live-Übersicht aller Schülerinnen und Schüler','DSGVO-konform durch Pseudonym-Login','Token-System mit globalem Tageslimit','SocketIO-basiertes Echtzeit-Update ohne Reload'], url:'https://alkalimetalle.wilski.tech' },
     alkane: { cat:'chemie', icon:'🛢️', online:true, fach:'Chemie · Klasse 10', title:'Alkane', tagline:'Die homologe Reihe der Kohlenwasserstoffe', desc:'Einführung in die organische Chemie über die Alkane – von der Molekülstruktur über die Nomenklatur bis zu den physikalischen Eigenschaften. Mit interaktiven Übungen und KI-Tutor.', features:['Theorie, Übungen und KI-Tutor in einer App','Strukturformeln mit Sofort-Feedback','Mobil-optimiertes Layout für Tablet-Einsatz','Automatisches Deployment via Coolify'], url:'https://alkane.wilski.tech' },
     wuesten: { cat:'geo', icon:'🏜️', online:false, fach:'Geografie · Klasse 9', title:'Wüstenbildung', tagline:'Desertifikation als globale Herausforderung', desc:'Warum breiten sich Wüsten aus? Dieses Projekt verbindet Klimatologie mit konkreten Fallbeispielen aus der Sahelzone, China und dem Aralsee.', features:['Interaktive Weltkarte mit Hotspots','Fallbeispiele aus drei Kontinenten','Klimadaten als interaktive Charts','Differenzierte Aufgabenniveaus'], url:'https://wuestenbildung.wilski.tech' },
-    lese: { cat:'deutsch', icon:'📖', online:false, fach:'Deutsch · Sek I', title:'Lesetrainer', tagline:'Lesekompetenz Schritt für Schritt aufbauen', desc:'Ein Werkzeug zur gezielten Förderung der Lesekompetenz mit Texten unterschiedlicher Schwierigkeit und automatischer Auswertung.', features:['Adaptive Schwierigkeitsanpassung','Vielfältige Textsorten','Automatische Auswertung und Feedback','Fortschrittsverfolgung pro Schüler'], url:'https://lesetrainer.wilski.tech' },
+    lese: { cat:'deutsch', icon:'📖', online:true, fach:'Deutsch · Sek I', title:'Lesetrainer', tagline:'Lesekompetenz Schritt für Schritt aufbauen', desc:'Ein Werkzeug zur gezielten Förderung der Lesekompetenz mit Texten unterschiedlicher Schwierigkeit und automatischer Auswertung.', features:['Adaptive Schwierigkeitsanpassung','Vielfältige Textsorten','Automatische Auswertung und Feedback','Fortschrittsverfolgung pro Schüler'], url:'https://lesetrainer.wilski.tech' },
     abi: { cat:'allg', icon:'🎓', online:false, fach:'Sek II', title:'Abiturtraining', tagline:'Gezielte Vorbereitung auf das Zentralabitur', desc:'Strukturierte Prüfungsvorbereitung mit Übungsaufgaben aus vergangenen Abiturjahrgängen und Musterlösungen.', features:['Aufgabenpool aus vergangenen Jahrgängen','Musterlösungen mit Bewertungshinweisen','Eigenständiges Arbeiten möglich','Fächerübergreifend einsetzbar'], url:'https://abiturtraining.wilski.tech' }
   };
 
