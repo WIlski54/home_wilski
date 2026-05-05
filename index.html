@@ -491,6 +491,7 @@
     .btn-ghost { border-color: #1a2a40; color: #4a6080; }
     .btn-ghost:hover { background: #0e1624; color: #7a8aa0; }
     .detail-preview { background: #080c14; border-radius: 12px; border: 1px solid #121e30; display: flex; align-items: center; justify-content: center; padding: 20px; min-height: 220px; }
+    .detail-shot { display: block; width: 100%; max-height: min(52vh, 420px); object-fit: contain; border-radius: 8px; box-shadow: 0 18px 45px rgba(0,0,0,0.32); }
     .mock { width: 100%; }
     .mock-window { background: #0b1220; border: 1px solid #1a2a40; border-radius: 8px; overflow: hidden; }
     .mock-bar { display: flex; gap: 5px; padding: 6px 10px; background: #0e1624; border-bottom: 1px solid #1a2a40; }
@@ -674,6 +675,11 @@
   };
 
   var COLORS = { chemie:{stroke:'#4a8bc4',dot:'#3a9460'}, geo:{stroke:'#3a9460',dot:'#3a9460'}, deutsch:{stroke:'#b07a10',dot:'#b07a10'}, allg:{stroke:'#556',dot:'#556'} };
+  var PREVIEWS = {
+    alkalimetalle: 'assets/project-previews/alkalimetalle.png',
+    alkane: 'assets/project-previews/alkane.png',
+    lese: 'assets/project-previews/leseassistent.png'
+  };
 
   /* ===== DETAIL ===== */
   var detail = document.getElementById('detail');
@@ -688,6 +694,9 @@
     if (sourceCard) sourceCard.classList.add('zoom-out');
     detail.className = 'detail cat-' + p.cat;
     detailPanel.innerHTML = '<svg class="detail-bg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid slice"><circle cx="720" cy="80" r="200" fill="none" stroke="'+col.stroke+'" stroke-width="0.6"/><circle cx="720" cy="80" r="120" fill="none" stroke="'+col.stroke+'" stroke-width="0.4"/><circle cx="120" cy="420" r="90" fill="none" stroke="'+col.stroke+'" stroke-width="0.4"/></svg><div class="detail-head"><button class="detail-back" id="detail-close">\u2190 Zur\u00fcck zur \u00dcbersicht</button><div class="detail-status" style="color:'+(p.online?'#3a9460':'#a03030')+'"><span class="status-dot" style="background:'+(p.online?col.dot:'#c04040')+';'+(p.online?'':'animation:none')+'"></span>'+(p.online?'online':'offline')+'</div></div><div class="detail-body"><div class="detail-info"><div class="detail-icon">'+p.icon+'</div><div class="detail-fach">'+p.fach+'</div><h2 class="detail-title">'+p.title+'</h2><div class="detail-tagline">'+p.tagline+'</div><p class="detail-text">'+p.desc+'</p><div class="detail-features">'+p.features.map(function(f){return '<div class="feat">'+f+'</div>'}).join('')+'</div><div class="detail-cta"><a class="btn btn-primary" href="'+p.url+'" target="_blank" rel="noopener">Projekt \u00f6ffnen \u2197</a><button class="btn btn-ghost" id="detail-close-2">Schlie\u00dfen</button></div></div><div class="detail-preview"><div class="mock"><div class="mock-window"><div class="mock-bar"><div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div></div><div class="mock-content"><div class="mock-h"></div><div class="mock-line w90"></div><div class="mock-line w70"></div><div class="mock-line w80"></div><div class="mock-line w50"></div><div class="mock-row"><div class="mock-pill active"></div><div class="mock-pill"></div><div class="mock-pill"></div></div><div class="mock-row"><div class="mock-pill"></div><div class="mock-pill active"></div></div></div></div></div></div></div>';
+    if (PREVIEWS[id]) {
+      detailPanel.querySelector('.detail-preview').innerHTML = '<img class="detail-shot" src="'+PREVIEWS[id]+'" alt="Vorschau '+p.title+'">';
+    }
     requestAnimationFrame(function(){detail.classList.add('open')});
     document.getElementById('detail-close').addEventListener('click',closeDetail);
     document.getElementById('detail-close-2').addEventListener('click',closeDetail);
