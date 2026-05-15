@@ -1,0 +1,23 @@
+# Browser automation profiles
+.chrome-shot-profile*/
+.edge-shot-profile*/
+
+# Runtime and cache files
+.cache/
+.tmp/
+tmp/
+*.log
+*.tmp
+*.dmp
+
+# Local environment files
+.env
+.env.*
+
+# Dependency folders, in case tooling is added later
+node_modules/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
