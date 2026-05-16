@@ -467,12 +467,47 @@
       transform-style: preserve-3d;
       transition:
         transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
-        filter 0.7s,
         opacity 0.7s;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .cover-card img {
+    .cover-shell {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transition: transform 0.62s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .cover-card.flipped .cover-shell {
+      transform: rotateY(180deg);
+    }
+
+    .cover-card[data-subject="biologie"] { --subject-accent: #74dcae; --subject-rgb: 116, 220, 174; }
+    .cover-card[data-subject="chemie"] { --subject-accent: #5fc3ff; --subject-rgb: 95, 195, 255; }
+    .cover-card[data-subject="physik"] { --subject-accent: #b88cff; --subject-rgb: 184, 140, 255; }
+    .cover-card[data-subject="mathematik"] { --subject-accent: #ffd35f; --subject-rgb: 255, 211, 95; }
+    .cover-card[data-subject="informatik"] { --subject-accent: #7ee8ff; --subject-rgb: 126, 232, 255; }
+    .cover-card[data-subject="deutsch"] { --subject-accent: #ff8a7b; --subject-rgb: 255, 138, 123; }
+    .cover-card[data-subject="englisch"] { --subject-accent: #77a8ff; --subject-rgb: 119, 168, 255; }
+    .cover-card[data-subject="wirtschaft"] { --subject-accent: #e6a46c; --subject-rgb: 230, 164, 108; }
+    .cover-card[data-subject="erdkunde"] { --subject-accent: #78dce9; --subject-rgb: 120, 220, 233; }
+
+    .cover-face,
+    .cover-back {
+      position: absolute;
+      inset: 0;
+      border-radius: 32px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .cover-face {
+      display: block;
+      pointer-events: none;
+    }
+
+    .cover-face img {
       display: block;
       width: 100%;
       height: 100%;
@@ -480,6 +515,50 @@
       pointer-events: none;
       transform: translateZ(0);
       filter: drop-shadow(0 28px 42px rgba(0, 0, 0, 0.34));
+    }
+
+    .cover-back {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 18px;
+      transform: rotateY(180deg);
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.035) 44%, rgba(6, 12, 22, 0.9)),
+        radial-gradient(circle at 20% 10%, rgba(var(--subject-rgb), 0.36), transparent 38%),
+        rgba(8, 13, 22, 0.82);
+      border: 1px solid rgba(var(--subject-rgb), 0.34);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 0 54px rgba(var(--subject-rgb), 0.08),
+        0 28px 58px rgba(0, 0, 0, 0.42),
+        0 0 42px rgba(var(--subject-rgb), 0.14);
+      backdrop-filter: blur(24px) saturate(1.35);
+      -webkit-backdrop-filter: blur(24px) saturate(1.35);
+      pointer-events: none;
+    }
+
+    .cover-card.flipped .cover-back { pointer-events: auto; }
+    .cover-card.flipped .cover-face { pointer-events: none; }
+
+    .cover-back::before {
+      content: '';
+      position: absolute;
+      inset: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 25px;
+      pointer-events: none;
+    }
+
+    .cover-back::after {
+      content: '';
+      position: absolute;
+      inset: -40% -20% auto;
+      height: 52%;
+      background: linear-gradient(110deg, transparent 18%, rgba(255, 255, 255, 0.26) 45%, transparent 72%);
+      transform: rotate(-8deg);
+      opacity: 0.58;
+      pointer-events: none;
     }
 
     .cover-card.is-focus {
@@ -490,14 +569,257 @@
       cursor: pointer;
     }
 
-    .cover-card.tap-pulse img {
+    .cover-card.tap-pulse .cover-shell {
       animation: coverTapPulse 0.58s ease-out;
     }
 
     @keyframes coverTapPulse {
-      0% { transform: scale(1); filter: drop-shadow(0 28px 42px rgba(0, 0, 0, 0.34)); }
+      0% { transform: scale(1); filter: brightness(1); }
       42% { transform: scale(1.045); filter: brightness(1.28) drop-shadow(0 0 44px rgba(122, 207, 255, 0.46)); }
-      100% { transform: scale(1); filter: drop-shadow(0 28px 42px rgba(0, 0, 0, 0.34)); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .cb-header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .cb-back-main,
+    .cb-back-sek {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f3f8ff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 1.25rem;
+      line-height: 1;
+      touch-action: manipulation;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .cb-back-main:hover,
+    .cb-back-sek:hover {
+      transform: scale(1.08);
+      border-color: rgba(var(--subject-rgb), 0.58);
+      background: rgba(var(--subject-rgb), 0.14);
+    }
+
+    .cb-title {
+      min-width: 0;
+      color: #f5f9ff;
+      font-size: 1.1rem;
+      font-weight: 500;
+      line-height: 1.1;
+    }
+
+    .cb-subline {
+      display: block;
+      margin-top: 3px;
+      color: rgba(218, 231, 248, 0.68);
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .cb-body {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      flex-direction: column;
+      padding-top: 14px;
+      animation: cbContentIn 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .cb-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    @keyframes cbContentIn {
+      0% { opacity: 0; transform: translateX(18px); filter: blur(4px); }
+      100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+    }
+
+    .cb-sek-btn {
+      flex: 1 1 0;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035)),
+        rgba(255, 255, 255, 0.045);
+      color: #f3f8ff;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      touch-action: manipulation;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .cb-sek-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(var(--subject-rgb), 0.58);
+      background:
+        linear-gradient(135deg, rgba(var(--subject-rgb), 0.2), rgba(255, 255, 255, 0.045)),
+        rgba(255, 255, 255, 0.06);
+    }
+
+    .cb-sek-label {
+      font-size: 1.65rem;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.3px;
+    }
+
+    .cb-sek-sub {
+      color: rgba(225, 238, 252, 0.66);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .cb-grade-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cb-grade-title {
+      color: #f3f8ff;
+      font-size: 1.16rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .cb-grade-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      flex: 1;
+      align-content: center;
+    }
+
+    .cb-grade-btn {
+      min-height: 66px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035)),
+        rgba(255, 255, 255, 0.045);
+      color: rgba(238, 246, 255, 0.9);
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      touch-action: manipulation;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, opacity 0.16s ease;
+    }
+
+    .cb-grade-btn:hover,
+    .cb-grade-btn.selected {
+      transform: translateY(-1px);
+      border-color: rgba(var(--subject-rgb), 0.68);
+      background: rgba(var(--subject-rgb), 0.18);
+      color: #fff;
+    }
+
+    .cb-grade-btn.empty {
+      opacity: 0.48;
+    }
+
+    .cb-module-area {
+      min-height: 94px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      background: rgba(5, 10, 18, 0.28);
+    }
+
+    .cb-module {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 11px;
+      border: 1px solid rgba(var(--subject-rgb), 0.28);
+      border-radius: 13px;
+      background: rgba(var(--subject-rgb), 0.1);
+      color: #f5f9ff;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      touch-action: manipulation;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .cb-module:hover {
+      transform: translateY(-2px);
+      border-color: rgba(var(--subject-rgb), 0.62);
+      background: rgba(var(--subject-rgb), 0.17);
+    }
+
+    .cb-module strong {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .cb-module small {
+      display: block;
+      margin-top: 2px;
+      color: rgba(218, 231, 248, 0.62);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+    }
+
+    .cb-module em {
+      flex: 0 0 auto;
+      color: rgba(218, 231, 248, 0.62);
+      font-size: 0.72rem;
+      font-style: normal;
+    }
+
+    .cb-empty {
+      padding: 12px;
+      color: rgba(218, 231, 248, 0.62);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      text-align: center;
     }
 
     .coverflow-hint {
@@ -843,6 +1165,82 @@
       .cover-card {
         width: clamp(220px, 62vw, 310px);
       }
+      .cover-back {
+        padding: 12px;
+        border-radius: 24px;
+      }
+      .cover-back::before {
+        inset: 6px;
+        border-radius: 19px;
+      }
+      .cb-header {
+        gap: 8px;
+        padding-bottom: 8px;
+      }
+      .cb-back-main,
+      .cb-back-sek {
+        width: 29px;
+        height: 29px;
+        font-size: 1rem;
+      }
+      .cb-title {
+        font-size: 0.95rem;
+      }
+      .cb-subline {
+        font-size: 0.54rem;
+      }
+      .cb-body {
+        gap: 8px;
+        padding-top: 10px;
+      }
+      .cb-panel {
+        gap: 8px;
+      }
+      .cb-sek-btn {
+        min-height: 72px;
+        padding: 12px;
+        border-radius: 14px;
+      }
+      .cb-sek-label {
+        font-size: 1.28rem;
+      }
+      .cb-sek-sub {
+        font-size: 0.54rem;
+      }
+      .cb-grade-head {
+        gap: 7px;
+        min-height: 34px;
+        padding-bottom: 7px;
+      }
+      .cb-grade-title {
+        font-size: 0.84rem;
+      }
+      .cb-grade-grid {
+        gap: 6px;
+      }
+      .cb-grade-btn {
+        min-height: 42px;
+        font-size: 0.68rem;
+        border-radius: 10px;
+      }
+      .cb-module-area {
+        min-height: 82px;
+        padding: 8px;
+        border-radius: 13px;
+      }
+      .cb-module {
+        min-height: 40px;
+        padding: 8px;
+        border-radius: 11px;
+      }
+      .cb-module strong {
+        font-size: 0.68rem;
+      }
+      .cb-module small,
+      .cb-module em,
+      .cb-empty {
+        font-size: 0.58rem;
+      }
       .subject-project-list {
         grid-template-columns: 1fr;
       }
@@ -887,7 +1285,9 @@
       .splash-logo-mask,
       .splash-glass,
       .cover-card,
-      .cover-card img,
+      .cover-shell,
+      .cover-face,
+      .cover-back,
       .splash-tunnel,
       .splash-flash,
       .splash-info,
@@ -953,33 +1353,60 @@
 
     <div class="coverflow-stage" id="stage-coverflow">
       <div class="coverflow-track" id="coverflow-track">
-        <button class="cover-card" type="button" data-subject="biologie" aria-label="Biologie ausw&auml;hlen">
-          <img src="biologie_card.png" alt="Biologie">
-        </button>
-        <button class="cover-card" type="button" data-subject="chemie" aria-label="Chemie ausw&auml;hlen">
-          <img src="chemie_card.png" alt="Chemie">
-        </button>
-        <button class="cover-card" type="button" data-subject="physik" aria-label="Physik ausw&auml;hlen">
-          <img src="physik_card.png" alt="Physik">
-        </button>
-        <button class="cover-card" type="button" data-subject="mathematik" aria-label="Mathematik ausw&auml;hlen">
-          <img src="mathe_card.png" alt="Mathematik">
-        </button>
-        <button class="cover-card" type="button" data-subject="informatik" aria-label="Informatik ausw&auml;hlen">
-          <img src="informatik_card.png" alt="Informatik">
-        </button>
-        <button class="cover-card" type="button" data-subject="deutsch" aria-label="Deutsch ausw&auml;hlen">
-          <img src="deutsch_card.png" alt="Deutsch">
-        </button>
-        <button class="cover-card" type="button" data-subject="englisch" aria-label="Englisch ausw&auml;hlen">
-          <img src="englisch_card.png" alt="Englisch">
-        </button>
-        <button class="cover-card" type="button" data-subject="wirtschaft" aria-label="Wirtschaft ausw&auml;hlen">
-          <img src="wirtschaft_card.png" alt="Wirtschaft">
-        </button>
-        <button class="cover-card" type="button" data-subject="erdkunde" aria-label="Erdkunde ausw&auml;hlen">
-          <img src="erdkunde_card.png" alt="Erdkunde">
-        </button>
+        <div class="cover-card" role="button" data-subject="biologie" aria-label="Biologie ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="biologie_card.png" alt="Biologie"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="chemie" aria-label="Chemie ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="chemie_card.png" alt="Chemie"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="physik" aria-label="Physik ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="physik_card.png" alt="Physik"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="mathematik" aria-label="Mathematik ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="mathe_card.png" alt="Mathematik"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="informatik" aria-label="Informatik ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="informatik_card.png" alt="Informatik"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="deutsch" aria-label="Deutsch ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="deutsch_card.png" alt="Deutsch"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="englisch" aria-label="Englisch ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="englisch_card.png" alt="Englisch"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="wirtschaft" aria-label="Wirtschaft ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="wirtschaft_card.png" alt="Wirtschaft"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="erdkunde" aria-label="Erdkunde ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="erdkunde_card.png" alt="Erdkunde"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="coverflow-hint" aria-hidden="true">
@@ -1139,6 +1566,7 @@
   var activeSubjectId = 'chemie';
   var activeStageId = 'sek1';
   var activeGradeId = '8';
+  var subjectCardState = {};
   var dragSuppressUntil = 0;
   var wheelDebounce = false;
 
@@ -1173,51 +1601,103 @@
     }) || stage.grades[0];
   }
 
-  function setActiveSubject(subjectId, preserveStage) {
+  function getCardState(subjectId) {
     var subject = SUBJECTS[subjectId] || SUBJECTS.chemie;
-    activeSubjectId = SUBJECTS[subjectId] ? subjectId : 'chemie';
-    if (!preserveStage || !subject.stages[activeStageId]) {
-      activeStageId = findDefaultStage(subject);
+    if (!subjectCardState[subjectId]) {
+      var stageId = findDefaultStage(subject);
+      subjectCardState[subjectId] = {
+        view: 'sek',
+        stageId: stageId,
+        gradeId: findDefaultGrade(subject, stageId)
+      };
     }
-    activeGradeId = findDefaultGrade(subject, activeStageId);
-    renderSubjectPanel();
+    return subjectCardState[subjectId];
   }
 
-  function renderSubjectPanel() {
-    var subject = SUBJECTS[activeSubjectId] || SUBJECTS.chemie;
-    var stage = subject.stages[activeStageId];
-    var allIds = getSubjectProjectIds(subject);
-    var ids = getGradeProjectIds(subject, activeStageId, activeGradeId);
-    subjectTitle.textContent = subject.label;
-    subjectCount.textContent = allIds.length === 1 ? '1 Modul insgesamt' : allIds.length + ' Module insgesamt';
-    subjectTabs.innerHTML = Object.keys(subject.stages).map(function(stageId) {
-      var tabStage = subject.stages[stageId];
-      var count = getStageProjectIds(tabStage).length;
-      return '<button class="subject-stage-tab '+(stageId === activeStageId ? 'active' : '')+'" type="button" data-stage="'+stageId+'">'+tabStage.label+' &middot; '+count+'</button>';
+  function getStageRange(stageId, stage) {
+    if (stageId === 'sek2') return 'EF &middot; Q1 &middot; Q2';
+    return 'Klasse ' + stage.grades[0] + ' - ' + stage.grades[stage.grades.length - 1];
+  }
+
+  function renderCardBack(card) {
+    var subjectId = card.dataset.subject;
+    var subject = SUBJECTS[subjectId] || SUBJECTS.chemie;
+    var state = getCardState(subjectId);
+    var stage = subject.stages[state.stageId];
+    var ids = getGradeProjectIds(subject, state.stageId, state.gradeId);
+    var total = getSubjectProjectIds(subject).length;
+    var back = card.querySelector('.cover-back');
+    var stageButtons = Object.keys(subject.stages).map(function(stageId) {
+      var currentStage = subject.stages[stageId];
+      var count = getStageProjectIds(currentStage).length;
+      return '<button class="cb-sek-btn" type="button" data-stage="'+stageId+'">'+
+        '<span class="cb-sek-label">'+currentStage.label+'</span>'+
+        '<span class="cb-sek-sub">'+getStageRange(stageId, currentStage)+' &middot; '+count+' Module</span>'+
+      '</button>';
     }).join('');
-    subjectGrades.innerHTML = stage.grades.map(function(grade) {
-      var count = getGradeProjectIds(subject, activeStageId, grade).length;
-      return '<button class="subject-grade '+(grade === activeGradeId ? 'active' : '')+' '+(count ? '' : 'empty')+'" type="button" data-grade="'+grade+'">'+grade+'</button>';
+    var gradeButtons = stage.grades.map(function(grade) {
+      var count = getGradeProjectIds(subject, state.stageId, grade).length;
+      var label = state.stageId === 'sek1' ? 'Jg. ' + grade : grade;
+      return '<button class="cb-grade-btn '+(grade === state.gradeId ? 'selected' : '')+' '+(count ? '' : 'empty')+'" type="button" data-grade="'+grade+'">'+label+'</button>';
     }).join('');
-    subjectPanelMeta.textContent = stage.label + ' - ' + (activeStageId === 'sek1' ? 'Klasse ' + activeGradeId : activeGradeId);
-    if (!ids.length) {
-      subjectList.innerHTML = '<div class="subject-empty">Noch keine Module f&uuml;r diese Auswahl hinterlegt.</div>';
-      return;
-    }
-    subjectList.innerHTML = ids.map(function(id) {
+    var modules = ids.length ? ids.map(function(id) {
       var p = PROJECTS[id];
       if (!p) return '';
-      return '<button class="subject-project" type="button" data-id="'+id+'"><span><small>'+p.fach+'</small><strong>'+p.title+'</strong></span><em>'+(p.online?'online':'offline')+'</em></button>';
-    }).join('');
+      return '<button class="cb-module" type="button" data-id="'+id+'"><span><small>'+p.fach+'</small><strong>'+p.title+'</strong></span><em>&ouml;ffnen</em></button>';
+    }).join('') : '<div class="cb-empty">Noch keine Module f&uuml;r diese Auswahl hinterlegt.</div>';
+    back.setAttribute('aria-hidden', card.classList.contains('flipped') ? 'false' : 'true');
+    back.classList.toggle('is-grade-view', state.view === 'grades');
+    var body = state.view === 'grades'
+      ? '<div class="cb-body">'+
+          '<div class="cb-grade-head"><button class="cb-back-sek" type="button" aria-label="Zur&uuml;ck zur Sekundarstufe">&lsaquo;</button><span class="cb-grade-title">'+stage.label+'</span></div>'+
+          '<div class="cb-grade-grid">'+gradeButtons+'</div>'+
+          '<div class="cb-module-area">'+modules+'</div>'+
+        '</div>'
+      : '<div class="cb-body"><div class="cb-panel">'+stageButtons+'</div></div>';
+    back.innerHTML =
+      '<div class="cb-header">'+
+        '<button class="cb-back-main" type="button" aria-label="Zur Kartenfront">&lsaquo;</button>'+
+        '<div><div class="cb-title">'+subject.label+'</div><span class="cb-subline">'+(total === 1 ? '1 Modul insgesamt' : total + ' Module insgesamt')+'</span></div>'+
+      '</div>'+
+      body;
   }
 
-  function openSubjectPanel(subjectId) {
-    setActiveSubject(subjectId, false);
-    subjectStage.classList.add('panel-open');
-    subjectPanel.setAttribute('aria-hidden', 'false');
+  function flipCard(card) {
+    card.classList.remove('tap-pulse');
+    card.dataset.flipResetToken = '';
+    card.classList.add('flipped');
+    renderCardBack(card);
+    renderCoverflow();
+  }
+
+  function unflipCard(card) {
+    card.classList.remove('flipped');
+    var back = card.querySelector('.cover-back');
+    if (back) {
+      var resetToken = String(Date.now()) + Math.random();
+      card.dataset.flipResetToken = resetToken;
+      back.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function() {
+        if (card.classList.contains('flipped') || card.dataset.flipResetToken !== resetToken) return;
+        var state = getCardState(card.dataset.subject);
+        state.view = 'sek';
+        renderCardBack(card);
+      }, 430);
+    }
+    renderCoverflow();
+  }
+
+  function unflipFocusedCard() {
+    var focused = coverflowCards[coverflowIndex];
+    if (focused && focused.classList.contains('flipped')) {
+      unflipCard(focused);
+      return true;
+    }
+    return false;
   }
 
   function closeSubjectPanel() {
+    unflipFocusedCard();
     subjectStage.classList.remove('panel-open');
     subjectPanel.setAttribute('aria-hidden', 'true');
   }
@@ -1238,13 +1718,16 @@
       var abs = Math.abs(offset);
       var x = offset * xStep;
       var z = -abs * 220;
-      var rotY = offset === 0 ? 0 : (offset < 0 ? 38 : -38);
+      var baseRotY = offset === 0 ? 0 : (offset < 0 ? 38 : -38);
       var scale = offset === 0 ? 1.08 : 0.82;
       var brightness = offset === 0 ? 1.08 : 0.62;
-      card.style.transform = 'translate(-50%, -50%) translate3d('+x+'px, 0, '+z+'px) rotateY('+rotY+'deg) scale('+scale+')';
+      var face = card.querySelector('.cover-face');
+      var back = card.querySelector('.cover-back');
+      card.style.transform = 'translate(-50%, -50%) translate3d('+x+'px, 0, '+z+'px) rotateY('+baseRotY+'deg) scale('+scale+')';
       card.style.zIndex = String(20 - abs);
       card.style.opacity = abs > 2 ? '0' : '1';
-      card.style.filter = offset === 0 ? 'brightness('+brightness+')' : 'brightness('+brightness+') blur(0.5px)';
+      if (face) face.style.filter = offset === 0 ? 'brightness('+brightness+')' : 'brightness('+brightness+') blur(0.5px)';
+      if (back) back.style.filter = offset === 0 ? 'brightness('+brightness+')' : 'brightness('+brightness+') blur(0.5px)';
       card.classList.toggle('is-focus', offset === 0);
       card.classList.toggle('is-side', offset !== 0);
       card.setAttribute('aria-selected', offset === 0 ? 'true' : 'false');
@@ -1253,10 +1736,14 @@
     document.querySelectorAll('.coverflow-dot').forEach(function(dot) {
       dot.classList.toggle('active', dot.dataset.subjectDot === activeSubject);
     });
-    setActiveSubject(activeSubject, subjectStage.classList.contains('panel-open'));
+    activeSubjectId = activeSubject;
   }
 
   function moveCoverflow(delta) {
+    if (unflipFocusedCard()) {
+      window.setTimeout(function() { moveCoverflow(delta); }, 460);
+      return;
+    }
     var next = Math.max(0, Math.min(coverflowCards.length - 1, coverflowIndex + delta));
     if (next === coverflowIndex) {
       pulseCoverCard(coverflowCards[coverflowIndex]);
@@ -1268,14 +1755,51 @@
 
   coverflowStage.addEventListener('click', function(e) {
     if (Date.now() < dragSuppressUntil) return;
+    var mainBack = e.target.closest('.cb-back-main');
+    if (mainBack) {
+      unflipCard(mainBack.closest('.cover-card'));
+      return;
+    }
+    var stageBack = e.target.closest('.cb-back-sek');
+    if (stageBack) {
+      var stageCard = stageBack.closest('.cover-card');
+      getCardState(stageCard.dataset.subject).view = 'sek';
+      renderCardBack(stageCard);
+      return;
+    }
+    var sekButton = e.target.closest('.cb-sek-btn');
+    if (sekButton) {
+      var sekCard = sekButton.closest('.cover-card');
+      var sekState = getCardState(sekCard.dataset.subject);
+      sekState.stageId = sekButton.dataset.stage;
+      sekState.gradeId = findDefaultGrade(SUBJECTS[sekCard.dataset.subject], sekState.stageId);
+      sekState.view = 'grades';
+      renderCardBack(sekCard);
+      return;
+    }
+    var gradeButton = e.target.closest('.cb-grade-btn');
+    if (gradeButton) {
+      var gradeCard = gradeButton.closest('.cover-card');
+      var gradeState = getCardState(gradeCard.dataset.subject);
+      gradeState.gradeId = gradeButton.dataset.grade;
+      gradeState.view = 'grades';
+      renderCardBack(gradeCard);
+      return;
+    }
+    var moduleButton = e.target.closest('.cb-module');
+    if (moduleButton) {
+      openDetail(moduleButton.dataset.id);
+      return;
+    }
+    if (e.target.closest('.cover-back')) return;
     var card = e.target.closest('.cover-card');
     var index = coverflowCards.indexOf(card);
     if (index === coverflowIndex) {
-      pulseCoverCard(coverflowCards[coverflowIndex]);
-      openSubjectPanel(coverflowCards[coverflowIndex].dataset.subject);
+      card.classList.contains('flipped') ? unflipCard(card) : flipCard(card);
       return;
     }
     if (index >= 0 && index !== coverflowIndex) {
+      unflipFocusedCard();
       coverflowIndex = index;
       renderCoverflow();
       pulseCoverCard(coverflowCards[coverflowIndex]);
@@ -1292,8 +1816,7 @@
       moveCoverflow(1);
       return;
     }
-    pulseCoverCard(coverflowCards[coverflowIndex]);
-    openSubjectPanel(coverflowCards[coverflowIndex].dataset.subject);
+    flipCard(coverflowCards[coverflowIndex]);
   });
 
   function attachCoverflowDrag() {
@@ -1301,6 +1824,7 @@
     var startX = 0;
     var lastDx = 0;
     coverflowStage.addEventListener('pointerdown', function(e) {
+      if (e.target.closest('.cover-back')) return;
       dragging = true;
       startX = e.clientX;
       lastDx = 0;
@@ -1321,31 +1845,8 @@
     coverflowStage.addEventListener('pointercancel', function() { dragging = false; });
   }
 
-  subjectList.addEventListener('click', function(e) {
-    var item = e.target.closest('.subject-project');
-    if (item) {
-      closeSubjectPanel();
-      openDetail(item.dataset.id);
-    }
-  });
-
-  subjectTabs.addEventListener('click', function(e) {
-    var tab = e.target.closest('.subject-stage-tab');
-    if (!tab) return;
-    activeStageId = tab.dataset.stage;
-    activeGradeId = findDefaultGrade(SUBJECTS[activeSubjectId], activeStageId);
-    renderSubjectPanel();
-  });
-
-  subjectGrades.addEventListener('click', function(e) {
-    var grade = e.target.closest('.subject-grade');
-    if (!grade) return;
-    activeGradeId = grade.dataset.grade;
-    renderSubjectPanel();
-  });
-
-  subjectPanelBackdrop.addEventListener('click', closeSubjectPanel);
-  subjectPanelClose.addEventListener('click', closeSubjectPanel);
+  if (subjectPanelBackdrop) subjectPanelBackdrop.addEventListener('click', closeSubjectPanel);
+  if (subjectPanelClose) subjectPanelClose.addEventListener('click', closeSubjectPanel);
 
   document.addEventListener('keydown', function(e) {
     var tag = (e.target && e.target.tagName || '').toLowerCase();
@@ -1354,8 +1855,10 @@
       closeSubjectPanel();
       return;
     }
-    if (subjectStage.classList.contains('panel-open')) {
-      return;
+    if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.classList.contains('cover-card')) {
+      e.preventDefault();
+      var focusedCard = document.activeElement;
+      focusedCard.classList.contains('flipped') ? unflipCard(focusedCard) : flipCard(focusedCard);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       moveCoverflow(-1);
@@ -1366,7 +1869,7 @@
   });
 
   window.addEventListener('wheel', function(e) {
-    if (document.body.classList.contains('splash-active') || detail.classList.contains('open') || subjectStage.classList.contains('panel-open')) return;
+    if (document.body.classList.contains('splash-active') || detail.classList.contains('open')) return;
     if (wheelDebounce) return;
     wheelDebounce = true;
     window.setTimeout(function() { wheelDebounce = false; }, 350);
@@ -1376,6 +1879,7 @@
 
   window.addEventListener('resize', renderCoverflow);
   attachCoverflowDrag();
+  coverflowCards.forEach(renderCardBack);
   renderCoverflow();
 
   /* ===== DETAIL ===== */
