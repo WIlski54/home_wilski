@@ -1290,15 +1290,21 @@
     .feat { font-size: 0.72rem; color: #98a9c2; display: flex; gap: 8px; align-items: flex-start; }
     .feat::before { content: ''; width: 4px; height: 4px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
     .cat-chemie .feat::before { background: #4a8bc4; }
+    .cat-bio .feat::before { background: #5ab478; }
     .cat-geo .feat::before { background: #3a9460; }
     .cat-deutsch .feat::before { background: #b07a10; }
+    .cat-mathe .feat::before { background: #d4a72c; }
+    .cat-englisch .feat::before { background: #77a8ff; }
     .cat-allg .feat::before { background: #556; }
     .detail-cta { display: flex; gap: 10px; margin-top: 16px; }
     .btn { flex: 1; text-align: center; padding: 11px; border-radius: 8px; font-size: 0.78rem; font-weight: 500; text-decoration: none; cursor: pointer; transition: all 0.15s; border: 1px solid; background: transparent; font-family: inherit; }
     .btn-primary { background: #0e2542; border-color: #1a3a5e; color: #6aaef0; }
     .btn-primary:hover { background: #143358; color: #8acaf5; }
+    .cat-bio .btn-primary { background: #0e2418; border-color: #1a3a28; color: #5ab478; }
     .cat-geo .btn-primary { background: #0e2418; border-color: #1a3a28; color: #5ab478; }
     .cat-deutsch .btn-primary { background: #241a00; border-color: #3a2800; color: #d09a20; }
+    .cat-mathe .btn-primary { background: #241c00; border-color: #3a2b00; color: #d4a72c; }
+    .cat-englisch .btn-primary { background: #0c1a35; border-color: #1b3564; color: #77a8ff; }
     .cat-allg .btn-primary { background: #14141e; border-color: #222238; color: #7a7a90; }
     .btn-ghost { border-color: #1a2a40; color: #93a8c8; }
     .btn-ghost:hover { background: #0e1624; color: #7a8aa0; }
@@ -1317,8 +1323,14 @@
     .mock-pill.active { background: #0e2542; border-color: #1a3a5e; }
     .cat-geo .mock-h { background: #1a3a28; }
     .cat-geo .mock-pill.active { background: #0e2418; border-color: #1a3a28; }
+    .cat-bio .mock-h { background: #1a3a28; }
+    .cat-bio .mock-pill.active { background: #0e2418; border-color: #1a3a28; }
     .cat-deutsch .mock-h { background: #3a2800; }
     .cat-deutsch .mock-pill.active { background: #241a00; border-color: #3a2800; }
+    .cat-mathe .mock-h { background: #3a2b00; }
+    .cat-mathe .mock-pill.active { background: #241c00; border-color: #3a2b00; }
+    .cat-englisch .mock-h { background: #1b3564; }
+    .cat-englisch .mock-pill.active { background: #0c1a35; border-color: #1b3564; }
 
     footer { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #0e1624; font-size: 0.65rem; color: #6f839f; }
 
@@ -1716,6 +1728,16 @@
 
   /* ===== PROJECTS ===== */
   var PROJECTS = {
+    laborgeraete: { cat:'chemie', icon:'&#129514;', online:true, fach:'Chemie &middot; Klasse 7', title:'Laborger\u00e4te', tagline:'Grundausstattung im Chemieraum sicher erkennen', desc:'Interaktives Arbeitsblatt zu wichtigen Laborger\u00e4ten der Schulchemie. Die Lernenden erkunden Funktion und Einsatz der Ger\u00e4te, zeichnen oder laden eigene Darstellungen hoch und \u00fcben im Bild-zu-Name-Quiz die sichere Zuordnung.', features:['Ger\u00e4te\u00fcbersicht mit Bildern und kurzen Erkl\u00e4rungen','Zufallsgenerator f\u00fcr Zeichen- und Upload-Aufgaben','PDF-Export f\u00fcr eigene Zeichnungen oder hochgeladene Bilder','Quizmodus vom Ger\u00e4tebild zum passenden Namen'], url:'https://wilski54.github.io/Laborgeraete_2/' },
+    mikroskop: { cat:'bio', icon:'&#128300;', online:true, fach:'Biologie &middot; Klasse 9', title:'Das Lichtmikroskop', tagline:'Aufbau, Funktion und richtiges Mikroskopieren', desc:'Interaktives Arbeitsblatt zum Lichtmikroskop mit Theorieteil, Bauteil-Hotspots und \u00dcbungen. Die Lernenden wiederholen Aufbau und Funktion, trainieren das richtige Vorgehen beim Mikroskopieren und pr\u00fcfen typische Fehlerquellen.', features:['Theorieteil zu Aufbau, Funktion und Vergr\u00f6\u00dferung','Interaktive Bauteil-Hotspots am Mikroskop','Lern- und \u00dcbungsmodus f\u00fcr die Beschriftung','Hinweise zu Sicherheit, Pflege und typischen Anf\u00e4ngerfehlern'], url:'https://wilski54.github.io/microscop/' },
+    mendelsche_regeln: { cat:'bio', icon:'&#129516;', online:true, fach:'Biologie &middot; Klasse 9', title:'Die Mendelschen Regeln', tagline:'Vererbung verstehen und Kreuzungen auswerten', desc:'Interaktives Arbeitsblatt zu den Grundlagen der klassischen Genetik. Die Lernenden erarbeiten Mendels Experimente, vergleichen dominante und intermedi\u00e4re Erbg\u00e4nge und \u00fcben Begriffe, Spaltungsverh\u00e4ltnisse und Punnett-Quadrate.', features:['Theorieteil zu Uniformit\u00e4ts- und Spaltungsregel','Vergleich von Erbsen und Wunderblumen','Interaktive Aufgaben mit direkter R\u00fcckmeldung','Punnett-Quadrat zur Auswertung von Kreuzungen'], url:'https://wilski54.github.io/Vererbung_1/' },
+    europakarte: { cat:'geo', icon:'&#127757;', online:true, fach:'Erdkunde &middot; Klasse 7', title:'Interaktive Europakarte', tagline:'L\u00e4nder Europas sicher auf der Karte zuordnen', desc:'Interaktive Karten\u00fcbung f\u00fcr Europa. Die Lernenden w\u00e4hlen ein Land aus, ordnen es auf der Karte zu und erhalten direkt visuelles Feedback, bis alle L\u00e4nder sicher gefunden sind.', features:['Klick\u00fcbung mit europ\u00e4ischen L\u00e4ndern','Direktes farbliches Feedback bei richtiger oder falscher Zuordnung','L\u00e4nderauswahl mit Neustart-Funktion','Training r\u00e4umlicher Orientierung in Europa'], url:'https://wilski54.github.io/Europa2/' },
+    lesetraining_deutsch: { cat:'deutsch', icon:'&#128214;', online:true, fach:'Deutsch &middot; Klasse 5', title:'Lesetraining Deutsch', tagline:'Sinnerfassendes Lesen mit dem Dachbodenfund', desc:'Lesetraining zum Kapitel "Der Dachbodenfund" mit klaren Leseschritten, H\u00f6runterst\u00fctzung und Verst\u00e4ndnisfragen. Die Lernenden lesen, h\u00f6ren mit und pr\u00fcfen anschlie\u00dfend ihr Textverst\u00e4ndnis.', features:['Lesestrategien f\u00fcr sinnerfassendes Lesen','Textanzeige mit optionalem Vorlesen','Verst\u00e4ndnisfragen zur Geschichte','PDF-Ausgabe f\u00fcr bearbeitete Aufgaben'], url:'https://wilski54.github.io/Texte_lesen/' },
+    wohnen_laender: { cat:'geo', icon:'&#127969;', online:true, fach:'Erdkunde &middot; Klasse 9', title:'Wohnen in verschiedenen L\u00e4ndern', tagline:'Wohnformen im Zusammenhang mit Natur und Umwelt', desc:'Differenziertes Arbeitsblatt zu Wohnformen weltweit. Die Lernenden arbeiten mit Textinformationen, vergleichen Architektur und Umweltbedingungen und erhalten je nach Niveau passende Aufgabenpakete.', features:['Texte zu Wohnformen rund um die Welt','Differenzierung \u00fcber A-, B- und C-Aufgabenpakete','Schwerpunkt auf Informationen aus Texten ermitteln','PDF-Export f\u00fcr personalisierte Arbeitsbl\u00e4tter'], url:'https://wilski54.github.io/Level_Wohen/' },
+    london_memory: { cat:'englisch', icon:'&#127963;', online:true, fach:'Englisch &middot; Klasse 7', title:'London Memory', tagline:'London-Wortschatz spielerisch wiederholen', desc:'Englisches Memory-Spiel mit landeskundlichem Einstieg zu London. Die Lernenden wiederholen wichtige Begriffe und Sehensw\u00fcrdigkeiten, w\u00e4hlen verschiedene Schwierigkeitsgrade und trainieren Wort-Bild-Zuordnungen.', features:['Kurzer Lesetext \u00fcber London als Einstieg','Memory-Spiel mit englischen Begriffen und Bildern','Drei Schwierigkeitsstufen von Easy bis Hard','Zeit-, Zug- und Trefferanzeige f\u00fcr spielerisches Feedback'], url:'https://wilski54.github.io/memory/' },
+    magisches_labyrinth: { cat:'mathe', icon:'&#10024;', online:true, fach:'Mathematik &middot; Klasse 9', title:'Das magische Labyrinth', tagline:'Escaperoom-Abenteuer zur Bruchrechnung', desc:'Mathematischer Escaperoom im Fantasy-Stil. Die Lernenden bewegen sich durch das magische Labyrinth von Arithma und l\u00f6sen Bruchaufgaben, um im Abenteuer Schritt f\u00fcr Schritt weiterzukommen.', features:['Storybasierter Einstieg in ein mathematisches Abenteuer','Aufgaben zur Bruchrechnung in Escaperoom-Form','Levelstruktur mit Toren, W\u00e4chtern und Fortschritt','Motivierendes Szenario f\u00fcr wiederholendes \u00dcben'], url:'https://wilski54.github.io/arithma10/' },
+    lineare_funktionen: { cat:'mathe', icon:'&#128200;', online:true, fach:'Mathematik &middot; Klasse 10', title:'Lineare Funktionen', tagline:'Geraden, Wertetabellen und Koordinatensystem interaktiv', desc:'Interaktive \u00dcbung zu linearen Funktionen. Die Lernenden arbeiten mit Funktionsgleichungen, Wertetabellen und einem Koordinatensystem, in dem Graphen und eigene Markierungen direkt eingezeichnet werden k\u00f6nnen.', features:['Einf\u00fchrung in y = mx + b mit Beispieltabelle','Automatische Berechnung von y-Werten','Interaktives Koordinatensystem mit Zeichenwerkzeugen','PDF-Export f\u00fcr bearbeitete Ergebnisse'], url:'https://wilski54.github.io/Lineare_Funktionen_Interaktiv/' },
+    finde_woerter: { cat:'deutsch', icon:'&#128066;', online:true, fach:'Deutsch &middot; Klasse 5', title:'Finde die W\u00f6rter', tagline:'Laute h\u00f6ren und passende W\u00f6rter finden', desc:'Interaktives \u00dcbungsformat zur phonologischen Bewusstheit. Die Lernenden h\u00f6ren W\u00f6rter, suchen passende Anfangs- oder Ziellaute und arbeiten sich durch mehrere Level.', features:['Drei Level f\u00fcr gestuftes Lauttraining','W\u00f6rter anh\u00f6ren und gezielt zuordnen','Punkteanzeige und Neustart f\u00fcr wiederholtes \u00dcben','Geeignet zur F\u00f6rderung von Aussprache und Lautbewusstsein'], url:'https://wilski54.github.io/ausprache/' },
     alkalimetalle: { cat:'chemie', icon:'⚗️', online:true, fach:'Chemie · Klasse 8', title:'Alkalimetalle', tagline:'Lithium, Natrium, Kalium und ihre Verwandten', desc:'Ein interaktives Arbeitsblatt, das Schülerinnen und Schülern die Reaktivität der Alkalimetalle näherbringt. Mit einem KI-Tutor, der Freitextantworten bewertet, und einem Echtzeit-Dashboard, das der Lehrkraft jederzeit den Lernstand der Klasse zeigt.', features:['8 Aufgaben mit drei Schwierigkeitsstufen (A / B / C)','KI-gestützte Bewertung von Freitextantworten via Google Gemini','Lehrer-Dashboard mit Live-Übersicht aller Schülerinnen und Schüler','DSGVO-konform durch Pseudonym-Login','Token-System mit globalem Tageslimit','SocketIO-basiertes Echtzeit-Update ohne Reload'], url:'https://alkalimetalle.wilski.tech' },
     alkane: { cat:'chemie', icon:'🛢️', online:true, fach:'Chemie · Klasse 10', title:'Alkane', tagline:'Die homologe Reihe der Kohlenwasserstoffe', desc:'Einführung in die organische Chemie über die Alkane – von der Molekülstruktur über die Nomenklatur bis zu den physikalischen Eigenschaften. Mit interaktiven Übungen und KI-Tutor.', features:['Theorie, Übungen und KI-Tutor in einer App','Strukturformeln mit Sofort-Feedback','Mobil-optimiertes Layout für Tablet-Einsatz','Automatisches Deployment via Coolify'], url:'https://alkane.wilski.tech' },
     wuesten: { cat:'geo', icon:'🏜️', online:true, fach:'Geografie · Klasse 9', title:'Wüstenbildung', tagline:'Desertifikation als globale Herausforderung', desc:'Warum breiten sich Wüsten aus? Dieses Projekt verbindet Klimatologie mit konkreten Fallbeispielen aus der Sahelzone, China und dem Aralsee.', features:['Interaktive Weltkarte mit Hotspots','Fallbeispiele aus drei Kontinenten','Klimadaten als interaktive Charts','Differenzierte Aufgabenniveaus'], url:'https://wuestenbildung.wilski.tech' },
@@ -1723,8 +1745,19 @@
     abi: { cat:'allg', icon:'🎓', online:false, fach:'Sek II', title:'Abiturtraining', tagline:'Gezielte Vorbereitung auf das Zentralabitur', desc:'Strukturierte Prüfungsvorbereitung mit Übungsaufgaben aus vergangenen Abiturjahrgängen und Musterlösungen.', features:['Aufgabenpool aus vergangenen Jahrgängen','Musterlösungen mit Bewertungshinweisen','Eigenständiges Arbeiten möglich','Fächerübergreifend einsetzbar'], url:'https://abiturtraining.wilski.tech' }
   };
 
-  var COLORS = { chemie:{stroke:'#4a8bc4',dot:'#3a9460'}, geo:{stroke:'#3a9460',dot:'#3a9460'}, deutsch:{stroke:'#b07a10',dot:'#b07a10'}, allg:{stroke:'#556',dot:'#556'} };
+  var COLORS = { chemie:{stroke:'#4a8bc4',dot:'#3a9460'}, bio:{stroke:'#5ab478',dot:'#5ab478'}, geo:{stroke:'#3a9460',dot:'#3a9460'}, deutsch:{stroke:'#b07a10',dot:'#b07a10'}, mathe:{stroke:'#d4a72c',dot:'#d4a72c'}, englisch:{stroke:'#77a8ff',dot:'#77a8ff'}, allg:{stroke:'#556',dot:'#556'} };
   var PREVIEWS = {
+    laborgeraete: 'assets/project-previews/laborgeraete.png',
+    mikroskop: 'assets/project-previews/mikroskop.png',
+    mendelsche_regeln: 'assets/project-previews/mendelsche_regeln.png',
+    europakarte: 'assets/project-previews/europakarte.png',
+    lesetraining_deutsch: 'assets/project-previews/lesetraining_deutsch.png',
+    wohnen_laender: 'assets/project-previews/wohnen_laender.png',
+    london_memory: 'assets/project-previews/london_memory.png',
+    magisches_labyrinth: 'assets/project-previews/magisches_labyrinth.png',
+    lineare_funktionen: 'assets/project-previews/lineare_funktionen.png',
+    finde_woerter: 'assets/project-previews/finde_woerter.png',
+    wuesten: 'assets/project-previews/wuestenbildung_app.png',
     alkalimetalle: 'assets/project-previews/alkalimetalle.png',
     alkane: 'assets/project-previews/alkane.png',
     lese: 'assets/project-previews/leseassistent.png'
@@ -1744,15 +1777,15 @@
   }
 
   var SUBJECTS = {
-    biologie: subjectConfig('Biologie'),
-    chemie: subjectConfig('Chemie', { '8': ['alkalimetalle'], '10': ['alkane'] }),
+    biologie: subjectConfig('Biologie', { '9': ['mikroskop', 'mendelsche_regeln'] }),
+    chemie: subjectConfig('Chemie', { '7': ['laborgeraete'], '8': ['alkalimetalle'], '10': ['alkane'] }),
     physik: subjectConfig('Physik'),
-    mathematik: subjectConfig('Mathematik'),
+    mathematik: subjectConfig('Mathematik', { '9': ['magisches_labyrinth'], '10': ['lineare_funktionen'] }),
     informatik: subjectConfig('Informatik'),
-    deutsch: subjectConfig('Deutsch', { '7': ['lese'] }),
-    englisch: subjectConfig('Englisch'),
+    deutsch: subjectConfig('Deutsch', { '5': ['lesetraining_deutsch', 'finde_woerter'], '7': ['lese'] }),
+    englisch: subjectConfig('Englisch', { '7': ['london_memory'] }),
     wirtschaft: subjectConfig('Wirtschaft'),
-    erdkunde: subjectConfig('Erdkunde', { '9': ['wuesten'] }),
+    erdkunde: subjectConfig('Erdkunde', { '7': ['europakarte'], '9': ['wuesten', 'wohnen_laender'] }),
     allgemein: subjectConfig('Allgemein', {}, { 'Q2': ['abi'] })
   };
 
