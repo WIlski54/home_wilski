@@ -221,20 +221,28 @@
     }
 
     .splash-hint {
-      position: relative;
-      z-index: 3;
-      margin-top: 2.5rem;
-      font-size: 0.82rem;
-      color: #8aa0bf;
-      letter-spacing: 2px;
+      position: absolute;
+      left: 50%;
+      top: clamp(84px, 18vh, 190px);
+      z-index: 5;
+      margin-top: 0;
+      font-size: clamp(0.98rem, 1.2vw, 1.25rem);
+      font-weight: 700;
+      color: rgba(238, 247, 255, 0.9);
+      letter-spacing: 2.8px;
       text-transform: uppercase;
+      text-shadow:
+        0 0 18px rgba(112, 198, 255, 0.32),
+        0 0 34px rgba(255, 80, 205, 0.2),
+        0 2px 18px rgba(0, 0, 0, 0.58);
+      transform: translateX(-50%);
       transition: opacity 0.28s, transform 0.28s;
       animation: hint-pulse 2.5s infinite;
     }
 
     @keyframes hint-pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.8; }
+      0%, 100% { opacity: 0.58; }
+      50% { opacity: 1; }
     }
 
     @keyframes flight-camera {
@@ -294,7 +302,7 @@
 
     .splash.zooming .splash-hint {
       opacity: 0;
-      transform: translateY(8px) scale(0.94);
+      transform: translate(-50%, 8px) scale(0.94);
       animation: none;
     }
 
@@ -822,6 +830,173 @@
       text-align: center;
     }
 
+    .coverflow-track.orbit-active::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 17;
+      pointer-events: none;
+      opacity: 0;
+      background: transparent;
+      transition: opacity 0.32s ease;
+    }
+
+    .coverflow-track.orbit-active .cover-card:not(.is-focus) {
+      opacity: 0.12 !important;
+      filter: blur(2px);
+    }
+
+    .coverflow-track.orbit-active .cover-card.is-focus .cover-face {
+      filter: brightness(0.74) drop-shadow(0 28px 42px rgba(0, 0, 0, 0.52)) !important;
+    }
+
+    .cover-orbit-anchor {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 32;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .cover-orbit-item {
+      position: absolute;
+      top: 0;
+      left: 0;
+      min-width: 138px;
+      min-height: 54px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 12px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.045)),
+        rgba(5, 11, 20, 0.58);
+      color: #f5f9ff;
+      cursor: pointer;
+      font: inherit;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.28rem;
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1;
+      opacity: 0;
+      pointer-events: auto;
+      text-align: center;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.48);
+      touch-action: manipulation;
+      transform: translate(-50%, -50%) scale(0.3);
+      transition:
+        transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.38s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 16px 44px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(24px) saturate(1.42);
+      -webkit-backdrop-filter: blur(24px) saturate(1.42);
+    }
+
+    .cover-orbit-item.is-grade,
+    .cover-orbit-item.is-module {
+      min-width: 96px;
+      min-height: 48px;
+      padding: 11px 19px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-style: normal;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cover-orbit-item.is-module {
+      min-width: 176px;
+      max-width: 240px;
+      min-height: 58px;
+      align-items: flex-start;
+      padding-inline: 20px;
+      letter-spacing: 0;
+      text-align: left;
+      text-transform: none;
+    }
+
+    .cover-orbit-item small {
+      display: block;
+      color: rgba(218, 231, 248, 0.62);
+      font-family: inherit;
+      font-size: 0.55rem;
+      font-style: normal;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .cover-orbit-item:hover,
+    .cover-orbit-item.selected {
+      border-color: rgba(var(--orbit-rgb, 106, 174, 240), 0.7);
+      background:
+        linear-gradient(135deg, rgba(var(--orbit-rgb, 106, 174, 240), 0.2), rgba(255, 255, 255, 0.055)),
+        rgba(5, 11, 20, 0.66);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.24),
+        0 18px 52px rgba(var(--orbit-rgb, 106, 174, 240), 0.22),
+        0 22px 58px rgba(0, 0, 0, 0.42);
+      filter: brightness(1.08);
+    }
+
+    .cover-orbit-item.empty {
+      opacity: 0.46 !important;
+    }
+
+    .cover-orbit-close {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 34;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.065);
+      color: #f5f9ff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 1.35rem;
+      line-height: 1;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, calc(-50% + 250px)) scale(0.7);
+      transition:
+        opacity 0.28s ease,
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background 0.18s ease,
+        border-color 0.18s ease;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .coverflow-track.orbit-active .cover-orbit-close {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, calc(-50% + 250px)) scale(1);
+    }
+
+    .cover-orbit-close:hover {
+      border-color: rgba(255, 255, 255, 0.34);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
     .coverflow-hint {
       display: flex;
       justify-content: center;
@@ -1160,7 +1335,7 @@
       }
       .coverflow-stage {
         height: clamp(340px, 58vh, 500px);
-        margin-inline: -28px;
+        margin-inline: -24px;
       }
       .cover-card {
         width: clamp(220px, 62vw, 310px);
@@ -1241,6 +1416,35 @@
       .cb-empty {
         font-size: 0.58rem;
       }
+      .cover-orbit-item {
+        min-width: 104px;
+        min-height: 44px;
+        padding: 9px 16px;
+        font-size: 1rem;
+      }
+      .cover-orbit-item.is-grade {
+        min-width: 72px;
+        min-height: 40px;
+        padding: 9px 13px;
+        font-size: 0.68rem;
+      }
+      .cover-orbit-item.is-module {
+        min-width: 145px;
+        max-width: 190px;
+        min-height: 50px;
+        padding-inline: 15px;
+      }
+      .cover-orbit-item small {
+        font-size: 0.48rem;
+      }
+      .cover-orbit-close {
+        width: 38px;
+        height: 38px;
+        transform: translate(-50%, calc(-50% + 212px)) scale(0.7);
+      }
+      .coverflow-track.orbit-active .cover-orbit-close {
+        transform: translate(-50%, calc(-50% + 212px)) scale(1);
+      }
       .subject-project-list {
         grid-template-columns: 1fr;
       }
@@ -1288,6 +1492,8 @@
       .cover-shell,
       .cover-face,
       .cover-back,
+      .cover-orbit-item,
+      .cover-orbit-close,
       .splash-tunnel,
       .splash-flash,
       .splash-info,
@@ -1407,6 +1613,8 @@
             <div class="cover-back" aria-hidden="true"></div>
           </div>
         </div>
+        <div class="cover-orbit-anchor" id="cover-orbit-anchor" aria-live="polite"></div>
+        <button class="cover-orbit-close" id="cover-orbit-close" type="button" aria-label="Auswahl schlie&szlig;en">&times;</button>
       </div>
     </div>
     <div class="coverflow-hint" aria-hidden="true">
@@ -1552,6 +1760,8 @@
   var coverflowStage = document.getElementById('stage-coverflow');
   var coverflowTrack = document.getElementById('coverflow-track');
   var coverflowCards = Array.prototype.slice.call(coverflowTrack.querySelectorAll('.cover-card'));
+  var coverOrbitAnchor = document.getElementById('cover-orbit-anchor');
+  var coverOrbitClose = document.getElementById('cover-orbit-close');
   var subjectStage = document.querySelector('.subject-stage');
   var subjectPanel = document.getElementById('subject-panel');
   var subjectPanelBackdrop = document.getElementById('subject-panel-backdrop');
@@ -1567,6 +1777,9 @@
   var activeStageId = 'sek1';
   var activeGradeId = '8';
   var subjectCardState = {};
+  var orbitLevel = null;
+  var orbitStageId = null;
+  var orbitGradeId = null;
   var dragSuppressUntil = 0;
   var wheelDebounce = false;
 
@@ -1697,6 +1910,7 @@
   }
 
   function closeSubjectPanel() {
+    if (orbitLevel) hideOrbit(true);
     unflipFocusedCard();
     subjectStage.classList.remove('panel-open');
     subjectPanel.setAttribute('aria-hidden', 'true');
@@ -1707,6 +1921,192 @@
     void card.offsetWidth;
     card.classList.add('tap-pulse');
     window.setTimeout(function() { card.classList.remove('tap-pulse'); }, 620);
+  }
+
+  function getFocusedSubjectId() {
+    return coverflowCards[coverflowIndex].dataset.subject;
+  }
+
+  function getFocusedSubject() {
+    return SUBJECTS[getFocusedSubjectId()] || SUBJECTS.chemie;
+  }
+
+  function getFocusedOrbitRgb() {
+    var card = coverflowCards[coverflowIndex];
+    return (window.getComputedStyle(card).getPropertyValue('--subject-rgb') || '106, 174, 240').trim();
+  }
+
+  function setOrbitActive(active) {
+    coverflowTrack.classList.toggle('orbit-active', active);
+  }
+
+  function placeOrbitItems(items, opts) {
+    coverOrbitAnchor.innerHTML = '';
+    var count = Math.max(items.length - 1, 1);
+    var rgb = getFocusedOrbitRgb();
+    items.forEach(function(item, i) {
+      var t = items.length === 1 ? 0.5 : i / count;
+      var angle = (opts.startAngle + t * (opts.endAngle - opts.startAngle)) * Math.PI / 180;
+      var x = Math.cos(angle) * opts.radius;
+      var y = Math.sin(angle) * opts.radius + (opts.centerYOffset || 0);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cover-orbit-item ' + (opts.classes || '') + (item.empty ? ' empty' : '');
+      btn.dataset.value = item.value;
+      if (item.stageId) btn.dataset.stage = item.stageId;
+      if (item.gradeId) btn.dataset.grade = item.gradeId;
+      if (item.projectId) btn.dataset.project = item.projectId;
+      btn.style.setProperty('--orbit-rgb', rgb);
+      btn.innerHTML = item.sub
+        ? '<span>'+item.label+'</span><small>'+item.sub+'</small>'
+        : '<span>'+item.label+'</span>';
+      coverOrbitAnchor.appendChild(btn);
+      window.setTimeout(function() {
+        btn.style.opacity = item.empty ? '0.48' : '1';
+        btn.style.transform = 'translate(calc(-50% + '+x+'px), calc(-50% + '+y+'px)) scale(1)';
+      }, 24 + i * 42);
+    });
+  }
+
+  function hideOrbit(immediate) {
+    var items = Array.prototype.slice.call(coverOrbitAnchor.querySelectorAll('.cover-orbit-item'));
+    orbitLevel = null;
+    orbitStageId = null;
+    orbitGradeId = null;
+    if (immediate) {
+      coverOrbitAnchor.innerHTML = '';
+      setOrbitActive(false);
+      renderCoverflow();
+      return;
+    }
+    items.forEach(function(item, i) {
+      window.setTimeout(function() {
+        item.style.opacity = '0';
+        item.style.transform = 'translate(-50%, -50%) scale(0.3)';
+      }, i * 28);
+    });
+    setOrbitActive(false);
+    renderCoverflow();
+    window.setTimeout(function() { coverOrbitAnchor.innerHTML = ''; }, items.length * 32 + 420);
+  }
+
+  function showStageOrbit() {
+    var subject = getFocusedSubject();
+    orbitLevel = 'stage';
+    orbitStageId = null;
+    orbitGradeId = null;
+    setOrbitActive(true);
+    renderCoverflow();
+    var stageWidth = coverflowStage.clientWidth;
+    var stageHeight = coverflowStage.clientHeight;
+    var radius = stageWidth < 520
+      ? Math.max(112, Math.min(128, stageWidth * 0.31))
+      : Math.max(168, Math.min(278, stageWidth * 0.24, stageHeight * 0.48));
+    var items = Object.keys(subject.stages).map(function(stageId) {
+      var stage = subject.stages[stageId];
+      var count = getStageProjectIds(stage).length;
+      return {
+        value: stageId,
+        stageId: stageId,
+        label: stage.label,
+        sub: getStageRange(stageId, stage).replace(/&middot;/g, '·') + ' · ' + count + ' Module'
+      };
+    });
+    items.forEach(function(item) {
+      item.sub = item.sub.replace(/\u00c2\u00b7/g, '-');
+    });
+    placeOrbitItems(items, {
+      radius: radius,
+      startAngle: -155,
+      endAngle: -25
+    });
+  }
+
+  function showGradeOrbit(stageId) {
+    var subject = getFocusedSubject();
+    var stage = subject.stages[stageId];
+    if (!stage) return;
+    orbitLevel = 'grade';
+    orbitStageId = stageId;
+    orbitGradeId = null;
+    setOrbitActive(true);
+    renderCoverflow();
+    var stageWidth = coverflowStage.clientWidth;
+    var stageHeight = coverflowStage.clientHeight;
+    var radius = stageWidth < 520
+      ? Math.max(126, Math.min(142, stageWidth * 0.36))
+      : Math.max(178, Math.min(stage.grades.length > 3 ? 318 : 268, stageWidth * 0.29, stageHeight * 0.52));
+    var centerYOffset = stageHeight < 520 && stageWidth >= 700 ? 52 : 0;
+    var items = stage.grades.map(function(grade) {
+      var ids = getGradeProjectIds(subject, stageId, grade);
+      return {
+        value: grade,
+        gradeId: grade,
+        label: stageId === 'sek1' ? 'Jg. ' + grade : grade,
+        sub: ids.length ? ids.length + ' Module' : 'Noch leer',
+        empty: !ids.length
+      };
+    });
+    placeOrbitItems(items, {
+      radius: radius,
+      startAngle: stage.grades.length > 3 ? -166 : -150,
+      endAngle: stage.grades.length > 3 ? -14 : -30,
+      centerYOffset: centerYOffset,
+      classes: 'is-grade'
+    });
+  }
+
+  function showModuleOrbit(stageId, gradeId, ids) {
+    orbitLevel = 'module';
+    orbitStageId = stageId;
+    orbitGradeId = gradeId;
+    var radius = Math.max(188, Math.min(305, coverflowStage.clientWidth * 0.28, coverflowStage.clientHeight * 0.52));
+    var items = ids.map(function(id) {
+      var p = PROJECTS[id];
+      return {
+        value: id,
+        projectId: id,
+        label: p ? p.title : id,
+        sub: p ? p.fach : 'Projekt'
+      };
+    });
+    placeOrbitItems(items, {
+      radius: radius,
+      startAngle: 26,
+      endAngle: 154,
+      classes: 'is-module'
+    });
+  }
+
+  function selectOrbitGrade(item) {
+    var subject = getFocusedSubject();
+    var subjectId = getFocusedSubjectId();
+    var grade = item.dataset.grade;
+    var state = getCardState(subjectId);
+    state.stageId = orbitStageId;
+    state.gradeId = grade;
+    state.view = 'grades';
+    orbitGradeId = grade;
+    coverOrbitAnchor.querySelectorAll('.cover-orbit-item').forEach(function(btn) {
+      btn.classList.remove('selected');
+    });
+    item.classList.add('selected');
+    item.animate([
+      { transform: item.style.transform, filter: 'brightness(1)' },
+      { transform: item.style.transform.replace('scale(1)', 'scale(1.22)'), filter: 'brightness(1.65)' },
+      { transform: item.style.transform, filter: 'brightness(1)' }
+    ], { duration: 420, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' });
+    var ids = getGradeProjectIds(subject, orbitStageId, grade);
+    if (ids.length === 1) {
+      window.setTimeout(function() {
+        hideOrbit(true);
+        openDetail(ids[0]);
+      }, 230);
+    } else if (ids.length > 1) {
+      window.setTimeout(function() {
+        showModuleOrbit(orbitStageId, grade, ids);
+      }, 260);
+    }
   }
 
   function renderCoverflow() {
@@ -1740,6 +2140,9 @@
   }
 
   function moveCoverflow(delta) {
+    if (orbitLevel) {
+      hideOrbit(true);
+    }
     if (unflipFocusedCard()) {
       window.setTimeout(function() { moveCoverflow(delta); }, 460);
       return;
@@ -1755,6 +2158,22 @@
 
   coverflowStage.addEventListener('click', function(e) {
     if (Date.now() < dragSuppressUntil) return;
+    var orbitItem = e.target.closest('.cover-orbit-item');
+    if (orbitItem) {
+      if (orbitLevel === 'stage') {
+        showGradeOrbit(orbitItem.dataset.stage || orbitItem.dataset.value);
+      } else if (orbitLevel === 'grade') {
+        selectOrbitGrade(orbitItem);
+      } else if (orbitLevel === 'module') {
+        hideOrbit(true);
+        openDetail(orbitItem.dataset.project || orbitItem.dataset.value);
+      }
+      return;
+    }
+    if (e.target.closest('.cover-orbit-close')) {
+      hideOrbit();
+      return;
+    }
     var mainBack = e.target.closest('.cb-back-main');
     if (mainBack) {
       unflipCard(mainBack.closest('.cover-card'));
@@ -1795,10 +2214,17 @@
     var card = e.target.closest('.cover-card');
     var index = coverflowCards.indexOf(card);
     if (index === coverflowIndex) {
-      card.classList.contains('flipped') ? unflipCard(card) : flipCard(card);
+      if (orbitLevel === null) {
+        showStageOrbit();
+      } else if (orbitLevel === 'grade' || orbitLevel === 'module') {
+        showStageOrbit();
+      } else {
+        hideOrbit();
+      }
       return;
     }
     if (index >= 0 && index !== coverflowIndex) {
+      if (orbitLevel) hideOrbit(true);
       unflipFocusedCard();
       coverflowIndex = index;
       renderCoverflow();
@@ -1816,33 +2242,47 @@
       moveCoverflow(1);
       return;
     }
-    flipCard(coverflowCards[coverflowIndex]);
+    showStageOrbit();
   });
 
   function attachCoverflowDrag() {
     var dragging = false;
     var startX = 0;
     var lastDx = 0;
+    var captured = false;
+    var pointerId = null;
+    var captureThreshold = 5;
     coverflowStage.addEventListener('pointerdown', function(e) {
-      if (e.target.closest('.cover-back')) return;
+      if (e.target.closest('.cover-back') || e.target.closest('.cover-orbit-item') || e.target.closest('.cover-orbit-close')) return;
       dragging = true;
       startX = e.clientX;
       lastDx = 0;
-      coverflowStage.setPointerCapture && coverflowStage.setPointerCapture(e.pointerId);
+      captured = false;
+      pointerId = e.pointerId;
     });
     coverflowStage.addEventListener('pointermove', function(e) {
       if (!dragging) return;
       lastDx = e.clientX - startX;
+      if (!captured && Math.abs(lastDx) > captureThreshold) {
+        coverflowStage.setPointerCapture && coverflowStage.setPointerCapture(pointerId);
+        captured = true;
+      }
     });
     coverflowStage.addEventListener('pointerup', function() {
       if (!dragging) return;
       dragging = false;
-      if (Math.abs(lastDx) > 60) {
+      if (captured && Math.abs(lastDx) > 60) {
         dragSuppressUntil = Date.now() + 260;
         moveCoverflow(lastDx > 0 ? -1 : 1);
       }
+      captured = false;
+      pointerId = null;
     });
-    coverflowStage.addEventListener('pointercancel', function() { dragging = false; });
+    coverflowStage.addEventListener('pointercancel', function() {
+      dragging = false;
+      captured = false;
+      pointerId = null;
+    });
   }
 
   if (subjectPanelBackdrop) subjectPanelBackdrop.addEventListener('click', closeSubjectPanel);
@@ -1852,13 +2292,13 @@
     var tag = (e.target && e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
     if (e.key === 'Escape') {
+      if (orbitLevel) hideOrbit();
       closeSubjectPanel();
       return;
     }
     if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.classList.contains('cover-card')) {
       e.preventDefault();
-      var focusedCard = document.activeElement;
-      focusedCard.classList.contains('flipped') ? unflipCard(focusedCard) : flipCard(focusedCard);
+      orbitLevel ? hideOrbit() : showStageOrbit();
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       moveCoverflow(-1);
