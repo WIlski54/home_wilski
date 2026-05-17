@@ -1,0 +1,11 @@
+.git
+.cache
+.tmp
+tmp
+__pycache__
+*.py[cod]
+*.log
+*.tmp
+.env
+.env.*
+splash-test-shots

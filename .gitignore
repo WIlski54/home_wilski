@@ -16,6 +16,8 @@ tmp/
 
 # Dependency folders, in case tooling is added later
 node_modules/
+__pycache__/
+*.py[cod]
 
 # OS metadata
 .DS_Store

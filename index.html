@@ -402,6 +402,47 @@
     .palette-item:hover { background: #071528; color: #6aaef0; }
     .palette-item-meta { font-size: 10px; color: #8197b6; letter-spacing: 0.5px; text-transform: uppercase; }
 
+    .admin-overlay { display: none; position: fixed; inset: 0; z-index: 210; align-items: center; justify-content: center; padding: 20px; background: rgba(4,6,12,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .admin-overlay.open { display: flex; }
+    .admin-modal { width: min(760px, 100%); max-height: min(86vh, 820px); overflow-y: auto; border: 1px solid rgba(106,174,240,0.24); border-radius: 16px; background: rgba(8,13,22,0.94); box-shadow: 0 28px 90px rgba(0,0,0,0.58), inset 0 1px 0 rgba(255,255,255,0.05); }
+    .admin-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 18px 20px 14px; border-bottom: 1px solid #121e30; }
+    .admin-head h3 { color: #f3f8ff; font-size: 1.05rem; font-weight: 500; line-height: 1.15; }
+    .admin-head p { margin-top: 5px; color: #8197b6; font-size: 0.72rem; line-height: 1.45; }
+    .admin-close { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(129,151,182,0.24); border-radius: 8px; background: rgba(11,18,32,0.72); color: #a3b8d7; cursor: pointer; font: inherit; font-size: 1rem; line-height: 1; }
+    .admin-close:hover { border-color: rgba(106,174,240,0.5); background: rgba(14,37,66,0.72); color: #dceaff; }
+    .admin-gate, .admin-form { padding: 20px; }
+    .admin-form[hidden] { display: none; }
+    .admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .admin-field { display: flex; flex-direction: column; gap: 6px; }
+    .admin-field.full { grid-column: 1 / -1; }
+    .admin-field label { color: #9fb3cf; font-size: 0.64rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    .admin-field input,
+    .admin-field select,
+    .admin-field textarea {
+      width: 100%;
+      border: 1px solid #16243a;
+      border-radius: 8px;
+      background: rgba(11,18,32,0.72);
+      color: #dceaff;
+      font: inherit;
+      font-size: 0.78rem;
+      outline: none;
+      padding: 10px 12px;
+    }
+    .admin-field textarea { min-height: 88px; resize: vertical; line-height: 1.55; }
+    .admin-field input:focus,
+    .admin-field select:focus,
+    .admin-field textarea:focus { border-color: rgba(106,174,240,0.58); box-shadow: 0 0 0 3px rgba(74,139,196,0.12); }
+    .admin-field input[type="file"] { padding: 9px; color: #8197b6; }
+    .admin-check { flex-direction: row; align-items: center; gap: 10px; min-height: 38px; }
+    .admin-check input { width: auto; accent-color: #6aaef0; }
+    .admin-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+    .admin-status { min-height: 18px; margin-top: 12px; color: #8197b6; font-size: 0.72rem; line-height: 1.45; }
+    .admin-status.ok { color: #6fd28f; }
+    .admin-status.error { color: #f08a8a; }
+    .admin-trigger { display: inline-flex; align-items: center; justify-content: center; margin-top: 8px; padding: 7px 11px; border: 1px solid #172844; border-radius: 8px; background: rgba(11,18,32,0.72); color: #8fb8ee; font: inherit; font-size: 0.66rem; cursor: pointer; transition: border-color 0.15s, background 0.15s, color 0.15s; }
+    .admin-trigger:hover { border-color: rgba(106,174,240,0.48); background: rgba(14,37,66,0.62); color: #cfe6ff; }
+
     .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
     .stat { background: #0b1220; border: 1px solid #121e30; border-radius: 10px; padding: 12px 14px; }
     .stat-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8197b6; margin-bottom: 4px; }
@@ -1335,7 +1376,8 @@
     .cat-englisch .mock-h { background: #1b3564; }
     .cat-englisch .mock-pill.active { background: #0c1a35; border-color: #1b3564; }
 
-    footer { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #0e1624; font-size: 0.65rem; color: #6f839f; }
+    footer { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #0e1624; font-size: 0.65rem; color: #6f839f; }
+    .footer-left { display: flex; flex-direction: column; align-items: flex-start; }
 
     @media (max-width: 700px) {
       .grid { grid-template-columns: repeat(2,1fr); }
@@ -1482,6 +1524,9 @@
       .detail-body { grid-template-columns: 1fr; }
       .detail-preview { display: none; }
       header { flex-direction: column; align-items: flex-start; }
+      .admin-grid { grid-template-columns: 1fr; }
+      .admin-actions { flex-direction: column; }
+      footer { flex-direction: column; }
       .splash { --portal-size: 86vw; --portal-zoom-size: max(920vw, 4800px); }
       .splash-info {
         left: 22px;
@@ -1549,6 +1594,84 @@
   <div class="detail" id="detail">
     <div class="detail-backdrop" id="detail-backdrop"></div>
     <div class="detail-panel" id="detail-panel"></div>
+  </div>
+
+  <div class="admin-overlay" id="admin-overlay" aria-hidden="true">
+    <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+      <div class="admin-head">
+        <div>
+          <h3 id="admin-title">Projekt implementieren</h3>
+          <p>Neues Projekt mit Fach, Jahrgang, Link und Vorschaubild auf dem Server speichern.</p>
+        </div>
+        <button class="admin-close" id="admin-close" type="button" aria-label="Dialog schlie&szlig;en">&times;</button>
+      </div>
+      <div class="admin-gate" id="admin-gate">
+        <div class="admin-field">
+          <label for="admin-password">Passwort</label>
+          <input id="admin-password" type="password" autocomplete="current-password" placeholder="Passwort eingeben">
+        </div>
+        <div class="admin-actions">
+          <button class="btn btn-primary" id="admin-unlock" type="button">Freischalten</button>
+        </div>
+        <div class="admin-status" id="admin-gate-status"></div>
+      </div>
+      <form class="admin-form" id="admin-form" hidden>
+        <div class="admin-grid">
+          <div class="admin-field">
+            <label for="project-title">Titel</label>
+            <input id="project-title" name="title" required placeholder="z. B. Photosynthese">
+          </div>
+          <div class="admin-field">
+            <label for="project-icon">Icon</label>
+            <input id="project-icon" name="icon" placeholder="z. B. &#129514;">
+          </div>
+          <div class="admin-field">
+            <label for="project-subject">Fach</label>
+            <select id="project-subject" name="subject" required></select>
+          </div>
+          <div class="admin-field">
+            <label for="project-stage">Stufe</label>
+            <select id="project-stage" name="stage" required>
+              <option value="sek1">Sek I</option>
+              <option value="sek2">Sek II</option>
+            </select>
+          </div>
+          <div class="admin-field">
+            <label for="project-grade">Jahrgang</label>
+            <select id="project-grade" name="grade" required></select>
+          </div>
+          <div class="admin-field">
+            <label for="project-url">Projekt-Link</label>
+            <input id="project-url" name="url" type="url" required placeholder="https://...">
+          </div>
+          <div class="admin-field full">
+            <label for="project-tagline">Untertitel</label>
+            <input id="project-tagline" name="tagline" required placeholder="Kurzer Satz zur Projektidee">
+          </div>
+          <div class="admin-field full">
+            <label for="project-desc">Beschreibung</label>
+            <textarea id="project-desc" name="desc" required placeholder="Was lernen die Sch&uuml;lerinnen und Sch&uuml;ler in diesem Projekt?"></textarea>
+          </div>
+          <div class="admin-field full">
+            <label for="project-features">Eigenschaften</label>
+            <textarea id="project-features" name="features" required placeholder="Eine Eigenschaft pro Zeile"></textarea>
+          </div>
+          <div class="admin-field full">
+            <label for="project-image">Vorschaubild</label>
+            <input id="project-image" name="image" type="file" accept="image/*">
+          </div>
+          <label class="admin-field admin-check full">
+            <input id="project-online" name="online" type="checkbox" checked>
+            <span>Projekt ist online</span>
+          </label>
+        </div>
+        <div class="admin-actions">
+          <button class="btn btn-ghost" id="admin-reset" type="button">Felder leeren</button>
+          <button class="btn btn-primary" type="submit">Projekt einf&uuml;gen</button>
+        </div>
+        <div class="admin-status" id="admin-form-status"></div>
+      </form>
+    </div>
   </div>
 
   <header>
@@ -1706,7 +1829,13 @@
     </div>
   </div>
 
-  <footer><span>Gesamtschule Meiderich · S. Wilski</span><span>2025/26</span></footer>
+  <footer>
+    <div class="footer-left">
+      <span>Gesamtschule Meiderich · S. Wilski</span>
+      <button class="admin-trigger" id="admin-open" type="button">Projekt Implementieren</button>
+    </div>
+    <span>2025/26</span>
+  </footer>
 </div>
 
 <script>
@@ -1793,6 +1922,47 @@
     erdkunde: subjectConfig('Erdkunde', { '7': ['europakarte'], '9': ['wuesten', 'wohnen_laender'] }),
     allgemein: subjectConfig('Allgemein', {}, { 'Q2': ['abi'] })
   };
+
+  var PROJECT_API_URL = '/api/projects';
+  var AUTH_API_URL = '/api/auth';
+
+  function addStoredProject(item) {
+    if (!item || !item.project || !item.placement || !item.project.id) return;
+    var project = item.project;
+    var placement = item.placement;
+    var subject = SUBJECTS[placement.subjectId];
+    if (!subject || !subject.stages[placement.stageId]) return;
+    PROJECTS[project.id] = project;
+    if (item.preview) PREVIEWS[project.id] = item.preview;
+    var gradeProjects = subject.stages[placement.stageId].projects[placement.gradeId];
+    if (!gradeProjects) {
+      gradeProjects = subject.stages[placement.stageId].projects[placement.gradeId] = [];
+    }
+    if (gradeProjects.indexOf(project.id) === -1) {
+      gradeProjects.push(project.id);
+    }
+  }
+
+  function applyStoredProjects() {
+    return fetch(PROJECT_API_URL)
+      .then(function(response) {
+        if (!response.ok) throw new Error('Projekte konnten nicht geladen werden.');
+        return response.json();
+      })
+      .then(function(data) {
+        (data.items || []).forEach(addStoredProject);
+        return data;
+      })
+      .catch(function() {
+        return { items: [] };
+      });
+  }
+
+  function buildProjectArr() {
+    return Object.entries(PROJECTS).map(function(e) {
+      return { id: e[0], n: e[1].title, c: e[1].fach, u: e[1].url };
+    });
+  }
 
   /* ===== COVERFLOW SUBJECT SELECTION ===== */
   var coverflowStage = document.getElementById('stage-coverflow');
@@ -2359,6 +2529,11 @@
   attachCoverflowDrag();
   coverflowCards.forEach(renderCardBack);
   renderCoverflow();
+  applyStoredProjects().then(function() {
+    coverflowCards.forEach(renderCardBack);
+    renderCoverflow();
+    projectArr = buildProjectArr();
+  });
 
   /* ===== DETAIL ===== */
   var detail = document.getElementById('detail');
@@ -2405,7 +2580,7 @@
   var paletteOverlay = document.getElementById('palette-overlay');
   var palInput = document.getElementById('pal-input');
   var palList = document.getElementById('pal-list');
-  var projectArr = Object.entries(PROJECTS).map(function(e){return {id:e[0],n:e[1].title,c:e[1].fach,u:e[1].url}});
+  var projectArr = buildProjectArr();
 
   function renderPalette(q) {
     q=(q||'').toLowerCase();
@@ -2419,6 +2594,172 @@
   palInput.addEventListener('input',function(){renderPalette(palInput.value)});
   paletteOverlay.addEventListener('click',function(e){if(e.target===paletteOverlay)closePalette()});
   document.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openPalette()}});
+
+  /* ===== PROJECT ADMIN ===== */
+  var adminOverlay = document.getElementById('admin-overlay');
+  var adminOpen = document.getElementById('admin-open');
+  var adminClose = document.getElementById('admin-close');
+  var adminGate = document.getElementById('admin-gate');
+  var adminForm = document.getElementById('admin-form');
+  var adminPassword = document.getElementById('admin-password');
+  var adminUnlock = document.getElementById('admin-unlock');
+  var adminGateStatus = document.getElementById('admin-gate-status');
+  var adminFormStatus = document.getElementById('admin-form-status');
+  var projectSubject = document.getElementById('project-subject');
+  var projectStage = document.getElementById('project-stage');
+  var projectGrade = document.getElementById('project-grade');
+  var adminUnlocked = false;
+
+  function setAdminStatus(target, message, type) {
+    if (!target) return;
+    target.textContent = message || '';
+    target.classList.remove('ok', 'error');
+    if (type) target.classList.add(type);
+  }
+
+  function openAdmin() {
+    adminOverlay.classList.add('open');
+    adminOverlay.setAttribute('aria-hidden', 'false');
+    setAdminStatus(adminGateStatus, '', '');
+    setAdminStatus(adminFormStatus, '', '');
+    window.setTimeout(function() {
+      (adminUnlocked ? document.getElementById('project-title') : adminPassword).focus();
+    }, 40);
+  }
+
+  function closeAdmin() {
+    adminOverlay.classList.remove('open');
+    adminOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  async function unlockAdmin() {
+    setAdminStatus(adminGateStatus, 'Passwort wird gepr\u00fcft...', '');
+    try {
+      var response = await fetch(AUTH_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword.value })
+      });
+      var data = await response.json().catch(function() { return {}; });
+      if (!response.ok) throw new Error(data.error || 'Passwort stimmt nicht.');
+      adminUnlocked = true;
+      adminGate.hidden = true;
+      adminForm.hidden = false;
+      setAdminStatus(adminGateStatus, '', '');
+      document.getElementById('project-title').focus();
+    } catch (err) {
+      setAdminStatus(adminGateStatus, err.message || 'Passwort konnte nicht gepr\u00fcft werden.', 'error');
+    }
+  }
+
+  function populateSubjectOptions() {
+    projectSubject.innerHTML = Object.keys(SUBJECTS).map(function(subjectId) {
+      return '<option value="'+subjectId+'">'+SUBJECTS[subjectId].label+'</option>';
+    }).join('');
+  }
+
+  function updateGradeOptions() {
+    var subject = SUBJECTS[projectSubject.value] || SUBJECTS.chemie;
+    var stage = subject.stages[projectStage.value] || subject.stages.sek1;
+    projectGrade.innerHTML = stage.grades.map(function(grade) {
+      var label = projectStage.value === 'sek1' ? 'Klasse ' + grade : grade;
+      return '<option value="'+grade+'">'+label+'</option>';
+    }).join('');
+  }
+
+  function refreshProjectViews(subjectId, stageId, gradeId) {
+    var cardIndex = coverflowCards.findIndex(function(card) {
+      return card.dataset.subject === subjectId;
+    });
+    if (cardIndex >= 0) {
+      coverflowIndex = cardIndex;
+      subjectCardState[subjectId] = { view: 'grades', stageId: stageId, gradeId: gradeId };
+    }
+    coverflowCards.forEach(renderCardBack);
+    renderCoverflow();
+    projectArr = buildProjectArr();
+    if (paletteOverlay.classList.contains('open')) renderPalette(palInput.value);
+  }
+
+  function clearAdminForm() {
+    adminForm.reset();
+    projectStage.value = 'sek1';
+    updateGradeOptions();
+    document.getElementById('project-online').checked = true;
+    setAdminStatus(adminFormStatus, '', '');
+  }
+
+  async function handleProjectSubmit(e) {
+    e.preventDefault();
+    var title = document.getElementById('project-title').value.trim();
+    var urlValue = document.getElementById('project-url').value.trim();
+    var subjectId = projectSubject.value;
+    var stageId = projectStage.value;
+    var gradeId = projectGrade.value;
+    var subject = SUBJECTS[subjectId];
+    var stage = subject && subject.stages[stageId];
+    var features = document.getElementById('project-features').value.split(/\r?\n/)
+      .map(function(line) { return line.trim(); })
+      .filter(Boolean);
+
+    if (!title || !urlValue || !subject || !stage || !gradeId || !features.length) {
+      setAdminStatus(adminFormStatus, 'Bitte Titel, Link, Fach, Jahrgang und mindestens eine Eigenschaft ausf\u00fcllen.', 'error');
+      return;
+    }
+
+    var parsedUrl;
+    try {
+      parsedUrl = new URL(urlValue);
+      if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') throw new Error('invalid protocol');
+    } catch (err) {
+      setAdminStatus(adminFormStatus, 'Bitte einen g\u00fcltigen http- oder https-Link eintragen.', 'error');
+      return;
+    }
+
+    setAdminStatus(adminFormStatus, 'Projekt wird auf dem Server gespeichert...', '');
+    try {
+      var formData = new FormData();
+      formData.append('password', adminPassword.value);
+      formData.append('title', title);
+      formData.append('icon', document.getElementById('project-icon').value.trim());
+      formData.append('subjectId', subjectId);
+      formData.append('stageId', stageId);
+      formData.append('gradeId', gradeId);
+      formData.append('url', parsedUrl.href);
+      formData.append('tagline', document.getElementById('project-tagline').value.trim());
+      formData.append('desc', document.getElementById('project-desc').value.trim());
+      formData.append('features', features.join('\n'));
+      formData.append('online', document.getElementById('project-online').checked ? 'true' : 'false');
+      var imageFile = document.getElementById('project-image').files[0];
+      if (imageFile) formData.append('image', imageFile);
+
+      var response = await fetch(PROJECT_API_URL, { method: 'POST', body: formData });
+      var data = await response.json().catch(function() { return {}; });
+      if (!response.ok) throw new Error(data.error || 'Das Projekt konnte nicht gespeichert werden.');
+
+      addStoredProject(data.item);
+      refreshProjectViews(subjectId, stageId, gradeId);
+      clearAdminForm();
+      setAdminStatus(adminFormStatus, 'Projekt wurde auf dem Server gespeichert und ist jetzt in der \u00dcbersicht sichtbar.', 'ok');
+    } catch (err) {
+      setAdminStatus(adminFormStatus, err.message || 'Das Projekt konnte nicht gespeichert werden.', 'error');
+    }
+  }
+
+  if (adminOpen) {
+    populateSubjectOptions();
+    updateGradeOptions();
+    adminOpen.addEventListener('click', openAdmin);
+    adminClose.addEventListener('click', closeAdmin);
+    adminOverlay.addEventListener('click', function(e) { if (e.target === adminOverlay) closeAdmin(); });
+    adminUnlock.addEventListener('click', unlockAdmin);
+    adminPassword.addEventListener('keydown', function(e) { if (e.key === 'Enter') unlockAdmin(); });
+    projectSubject.addEventListener('change', updateGradeOptions);
+    projectStage.addEventListener('change', updateGradeOptions);
+    document.getElementById('admin-reset').addEventListener('click', clearAdminForm);
+    adminForm.addEventListener('submit', handleProjectSubmit);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAdmin(); });
+  }
 
 })();
 </script>
