@@ -14,7 +14,7 @@ DATA_DIR = Path(os.environ.get("PROJECT_DATA_DIR", str(BASE_DIR / "data"))).reso
 PROJECTS_FILE = Path(os.environ.get("PROJECTS_FILE", str(DATA_DIR / "projects.json"))).resolve()
 UPLOAD_DIR = Path(os.environ.get("PROJECT_UPLOAD_DIR", str(BASE_DIR / "assets" / "project-previews" / "uploads"))).resolve()
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
-CURRENT_SEED_VERSION = 1
+CURRENT_SEED_VERSION = 2
 
 ADMIN_PASSWORD = os.environ.get("PROJECT_ADMIN_PASSWORD", "wilski2026")
 
@@ -28,6 +28,8 @@ SUBJECTS = {
     "englisch": {"label": "Englisch", "stages": {"sek1": ["5", "6", "7", "8", "9", "10"], "sek2": ["EF", "Q1", "Q2"]}},
     "wirtschaft": {"label": "Wirtschaft", "stages": {"sek1": ["5", "6", "7", "8", "9", "10"], "sek2": ["EF", "Q1", "Q2"]}},
     "erdkunde": {"label": "Erdkunde", "stages": {"sek1": ["5", "6", "7", "8", "9", "10"], "sek2": ["EF", "Q1", "Q2"]}},
+    "gesellschaft": {"label": "Gesellschaftslehre", "stages": {"sek1": ["5", "6", "7", "8", "9", "10"], "sek2": ["EF", "Q1", "Q2"]}},
+    "geschichte": {"label": "Geschichte", "stages": {"sek1": ["5", "6", "7", "8", "9", "10"], "sek2": ["EF", "Q1", "Q2"]}},
     "allgemein": {"label": "Allgemein", "stages": {"sek1": ["5", "6", "7", "8", "9", "10"], "sek2": ["EF", "Q1", "Q2"]}},
 }
 
@@ -41,6 +43,8 @@ SUBJECT_CATS = {
     "englisch": "englisch",
     "wirtschaft": "allg",
     "erdkunde": "geo",
+    "gesellschaft": "gesellschaft",
+    "geschichte": "geschichte",
     "allgemein": "allg",
 }
 

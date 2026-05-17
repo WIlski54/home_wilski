@@ -552,6 +552,8 @@
     .cover-card[data-subject="englisch"] { --subject-accent: #77a8ff; --subject-rgb: 119, 168, 255; }
     .cover-card[data-subject="wirtschaft"] { --subject-accent: #e6a46c; --subject-rgb: 230, 164, 108; }
     .cover-card[data-subject="erdkunde"] { --subject-accent: #78dce9; --subject-rgb: 120, 220, 233; }
+    .cover-card[data-subject="gesellschaft"] { --subject-accent: #f0c66e; --subject-rgb: 240, 198, 110; }
+    .cover-card[data-subject="geschichte"] { --subject-accent: #d98d5f; --subject-rgb: 217, 141, 95; }
 
     .cover-face,
     .cover-back {
@@ -1361,6 +1363,8 @@
     .cat-mathe .btn-primary { background: #241c00; border-color: #3a2b00; color: #d4a72c; }
     .cat-englisch .btn-primary { background: #0c1a35; border-color: #1b3564; color: #77a8ff; }
     .cat-informatik .btn-primary { background: #10172f; border-color: #24396a; color: #8a9cff; }
+    .cat-gesellschaft .btn-primary { background: #271c09; border-color: #4a3412; color: #f0c66e; }
+    .cat-geschichte .btn-primary { background: #2a150d; border-color: #4a2417; color: #d98d5f; }
     .cat-allg .btn-primary { background: #14141e; border-color: #222238; color: #7a7a90; }
     .btn-ghost { border-color: #1a2a40; color: #93a8c8; }
     .btn-ghost:hover { background: #0e1624; color: #7a8aa0; }
@@ -1387,6 +1391,10 @@
     .cat-mathe .mock-pill.active { background: #241c00; border-color: #3a2b00; }
     .cat-englisch .mock-h { background: #1b3564; }
     .cat-englisch .mock-pill.active { background: #0c1a35; border-color: #1b3564; }
+    .cat-gesellschaft .mock-h { background: #4a3412; }
+    .cat-gesellschaft .mock-pill.active { background: #271c09; border-color: #4a3412; }
+    .cat-geschichte .mock-h { background: #4a2417; }
+    .cat-geschichte .mock-pill.active { background: #2a150d; border-color: #4a2417; }
 
     footer { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #0e1624; font-size: 0.65rem; color: #6f839f; }
     .footer-left { display: flex; flex-direction: column; align-items: flex-start; }
@@ -1774,6 +1782,18 @@
             <div class="cover-back" aria-hidden="true"></div>
           </div>
         </div>
+        <div class="cover-card" role="button" data-subject="gesellschaft" aria-label="Gesellschaftslehre ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="gesellschaft_card.png" alt="Gesellschaftslehre"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cover-card" role="button" data-subject="geschichte" aria-label="Geschichte ausw&auml;hlen">
+          <div class="cover-shell">
+            <span class="cover-face"><img src="geschichte_card.png" alt="Geschichte"></span>
+            <div class="cover-back" aria-hidden="true"></div>
+          </div>
+        </div>
         <div class="cover-orbit-anchor" id="cover-orbit-anchor" aria-live="polite"></div>
         <button class="cover-orbit-close" id="cover-orbit-close" type="button" aria-label="Auswahl schlie&szlig;en">&times;</button>
       </div>
@@ -1788,6 +1808,8 @@
       <span class="coverflow-dot" data-subject-dot="englisch"></span>
       <span class="coverflow-dot" data-subject-dot="wirtschaft"></span>
       <span class="coverflow-dot" data-subject-dot="erdkunde"></span>
+      <span class="coverflow-dot" data-subject-dot="gesellschaft"></span>
+      <span class="coverflow-dot" data-subject-dot="geschichte"></span>
     </div>
 
     <button class="subject-panel-backdrop" id="subject-panel-backdrop" type="button" aria-label="Fachauswahl schlie&szlig;en"></button>
@@ -1901,7 +1923,7 @@
     abi: { cat:'allg', icon:'🎓', online:false, fach:'Sek II', title:'Abiturtraining', tagline:'Gezielte Vorbereitung auf das Zentralabitur', desc:'Strukturierte Prüfungsvorbereitung mit Übungsaufgaben aus vergangenen Abiturjahrgängen und Musterlösungen.', features:['Aufgabenpool aus vergangenen Jahrgängen','Musterlösungen mit Bewertungshinweisen','Eigenständiges Arbeiten möglich','Fächerübergreifend einsetzbar'], url:'https://abiturtraining.wilski.tech' }
   };
 
-  var COLORS = { chemie:{stroke:'#4a8bc4',dot:'#3a9460'}, bio:{stroke:'#5ab478',dot:'#5ab478'}, geo:{stroke:'#3a9460',dot:'#3a9460'}, deutsch:{stroke:'#b07a10',dot:'#b07a10'}, mathe:{stroke:'#d4a72c',dot:'#d4a72c'}, englisch:{stroke:'#77a8ff',dot:'#77a8ff'}, informatik:{stroke:'#8a9cff',dot:'#8a9cff'}, allg:{stroke:'#556',dot:'#556'} };
+  var COLORS = { chemie:{stroke:'#4a8bc4',dot:'#3a9460'}, bio:{stroke:'#5ab478',dot:'#5ab478'}, geo:{stroke:'#3a9460',dot:'#3a9460'}, deutsch:{stroke:'#b07a10',dot:'#b07a10'}, mathe:{stroke:'#d4a72c',dot:'#d4a72c'}, englisch:{stroke:'#77a8ff',dot:'#77a8ff'}, informatik:{stroke:'#8a9cff',dot:'#8a9cff'}, gesellschaft:{stroke:'#f0c66e',dot:'#f0c66e'}, geschichte:{stroke:'#d98d5f',dot:'#d98d5f'}, allg:{stroke:'#556',dot:'#556'} };
   var PREVIEWS = {
     laborgeraete: 'assets/project-previews/laborgeraete.png',
     mikroskop: 'assets/project-previews/mikroskop.png',
@@ -1943,6 +1965,8 @@
     englisch: subjectConfig('Englisch', { '7': ['london_memory'] }),
     wirtschaft: subjectConfig('Wirtschaft'),
     erdkunde: subjectConfig('Erdkunde', { '7': ['europakarte'], '9': ['wuesten', 'wohnen_laender'] }),
+    gesellschaft: subjectConfig('Gesellschaftslehre'),
+    geschichte: subjectConfig('Geschichte'),
     allgemein: subjectConfig('Allgemein', {}, { 'Q2': ['abi'] })
   };
 
@@ -1962,6 +1986,8 @@
     englisch: subjectConfig('Englisch'),
     wirtschaft: subjectConfig('Wirtschaft'),
     erdkunde: subjectConfig('Erdkunde'),
+    gesellschaft: subjectConfig('Gesellschaftslehre'),
+    geschichte: subjectConfig('Geschichte'),
     allgemein: subjectConfig('Allgemein')
   };
 
