@@ -440,6 +440,18 @@
     .admin-status { min-height: 18px; margin-top: 12px; color: #8197b6; font-size: 0.72rem; line-height: 1.45; }
     .admin-status.ok { color: #6fd28f; }
     .admin-status.error { color: #f08a8a; }
+    .admin-manage { margin-top: 22px; padding-top: 18px; border-top: 1px solid #121e30; }
+    .admin-manage-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 12px; }
+    .admin-manage-head h4 { color: #f3f8ff; font-size: 0.92rem; font-weight: 500; }
+    .admin-manage-head span { color: #8197b6; font-size: 0.68rem; }
+    .admin-project-list { display: grid; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 2px; }
+    .admin-project-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 10px 11px; border: 1px solid #16243a; border-radius: 8px; background: rgba(11,18,32,0.56); }
+    .admin-project-row strong { display: block; color: #dceaff; font-size: 0.76rem; font-weight: 500; }
+    .admin-project-row small { display: block; margin-top: 3px; color: #8197b6; font-size: 0.6rem; line-height: 1.35; }
+    .admin-status-toggle { display: inline-flex; align-items: center; gap: 7px; color: #9fb3cf; font-size: 0.68rem; white-space: nowrap; }
+    .admin-status-toggle input { accent-color: #6fd28f; }
+    .admin-delete { padding: 7px 10px; border: 1px solid rgba(220,70,70,0.48); border-radius: 8px; background: rgba(80,12,18,0.3); color: #ff9a9a; cursor: pointer; font: inherit; font-size: 0.68rem; }
+    .admin-delete:hover { background: rgba(100,18,24,0.5); border-color: rgba(255,100,100,0.72); }
     .admin-trigger { display: inline-flex; align-items: center; justify-content: center; margin-top: 8px; padding: 7px 11px; border: 1px solid #172844; border-radius: 8px; background: rgba(11,18,32,0.72); color: #8fb8ee; font: inherit; font-size: 0.66rem; cursor: pointer; transition: border-color 0.15s, background 0.15s, color 0.15s; }
     .admin-trigger:hover { border-color: rgba(106,174,240,0.48); background: rgba(14,37,66,0.62); color: #cfe6ff; }
 
@@ -1526,6 +1538,8 @@
       header { flex-direction: column; align-items: flex-start; }
       .admin-grid { grid-template-columns: 1fr; }
       .admin-actions { flex-direction: column; }
+      .admin-project-row { grid-template-columns: 1fr; }
+      .admin-status-toggle { justify-content: space-between; }
       footer { flex-direction: column; }
       .splash { --portal-size: 86vw; --portal-zoom-size: max(920vw, 4800px); }
       .splash-info {
@@ -1670,6 +1684,15 @@
           <button class="btn btn-primary" type="submit">Projekt einf&uuml;gen</button>
         </div>
         <div class="admin-status" id="admin-form-status"></div>
+        <div class="admin-manage">
+          <div class="admin-manage-head">
+            <div>
+              <h4>Projekte verwalten</h4>
+              <span>Status manuell setzen oder Projekte aus der Übersicht entfernen.</span>
+            </div>
+          </div>
+          <div class="admin-project-list" id="admin-project-list"></div>
+        </div>
       </form>
     </div>
   </div>
@@ -1925,6 +1948,22 @@
 
   var PROJECT_API_URL = '/api/projects';
   var AUTH_API_URL = '/api/auth';
+  var PROJECT_ITEMS = {};
+
+  PROJECTS = {};
+  PREVIEWS = {};
+  SUBJECTS = {
+    biologie: subjectConfig('Biologie'),
+    chemie: subjectConfig('Chemie'),
+    physik: subjectConfig('Physik'),
+    mathematik: subjectConfig('Mathematik'),
+    informatik: subjectConfig('Informatik'),
+    deutsch: subjectConfig('Deutsch'),
+    englisch: subjectConfig('Englisch'),
+    wirtschaft: subjectConfig('Wirtschaft'),
+    erdkunde: subjectConfig('Erdkunde'),
+    allgemein: subjectConfig('Allgemein')
+  };
 
   function addStoredProject(item) {
     if (!item || !item.project || !item.placement || !item.project.id) return;
@@ -1932,6 +1971,7 @@
     var placement = item.placement;
     var subject = SUBJECTS[placement.subjectId];
     if (!subject || !subject.stages[placement.stageId]) return;
+    PROJECT_ITEMS[project.id] = item;
     PROJECTS[project.id] = project;
     if (item.preview) PREVIEWS[project.id] = item.preview;
     var gradeProjects = subject.stages[placement.stageId].projects[placement.gradeId];
@@ -1941,6 +1981,30 @@
     if (gradeProjects.indexOf(project.id) === -1) {
       gradeProjects.push(project.id);
     }
+  }
+
+  function removeStoredProject(projectId) {
+    var item = PROJECT_ITEMS[projectId];
+    if (item && item.placement) {
+      var placement = item.placement;
+      var subject = SUBJECTS[placement.subjectId];
+      var stage = subject && subject.stages[placement.stageId];
+      var gradeProjects = stage && stage.projects[placement.gradeId];
+      if (gradeProjects) {
+        stage.projects[placement.gradeId] = gradeProjects.filter(function(id) { return id !== projectId; });
+      }
+    }
+    delete PROJECT_ITEMS[projectId];
+    delete PROJECTS[projectId];
+    delete PREVIEWS[projectId];
+  }
+
+  function refreshAllProjectViews() {
+    coverflowCards.forEach(renderCardBack);
+    renderCoverflow();
+    projectArr = buildProjectArr();
+    if (paletteOverlay && paletteOverlay.classList.contains('open')) renderPalette(palInput.value);
+    renderAdminProjectList();
   }
 
   function applyStoredProjects() {
@@ -2605,6 +2669,7 @@
   var adminUnlock = document.getElementById('admin-unlock');
   var adminGateStatus = document.getElementById('admin-gate-status');
   var adminFormStatus = document.getElementById('admin-form-status');
+  var adminProjectList = document.getElementById('admin-project-list');
   var projectSubject = document.getElementById('project-subject');
   var projectStage = document.getElementById('project-stage');
   var projectGrade = document.getElementById('project-grade');
@@ -2646,6 +2711,7 @@
       adminGate.hidden = true;
       adminForm.hidden = false;
       setAdminStatus(adminGateStatus, '', '');
+      renderAdminProjectList();
       document.getElementById('project-title').focus();
     } catch (err) {
       setAdminStatus(adminGateStatus, err.message || 'Passwort konnte nicht gepr\u00fcft werden.', 'error');
@@ -2687,6 +2753,61 @@
     updateGradeOptions();
     document.getElementById('project-online').checked = true;
     setAdminStatus(adminFormStatus, '', '');
+  }
+
+  function renderAdminProjectList() {
+    if (!adminProjectList) return;
+    var ids = Object.keys(PROJECT_ITEMS).sort(function(a, b) {
+      var pa = PROJECTS[a] || {};
+      var pb = PROJECTS[b] || {};
+      return String(pa.title || a).localeCompare(String(pb.title || b), 'de');
+    });
+    if (!ids.length) {
+      adminProjectList.innerHTML = '<div class="subject-empty">Noch keine Projekte vorhanden.</div>';
+      return;
+    }
+    adminProjectList.innerHTML = ids.map(function(id) {
+      var item = PROJECT_ITEMS[id];
+      var project = item.project || {};
+      var placement = item.placement || {};
+      var subject = SUBJECTS[placement.subjectId];
+      var stage = subject && subject.stages[placement.stageId];
+      var gradeLabel = placement.stageId === 'sek1' ? 'Klasse ' + placement.gradeId : placement.gradeId;
+      var meta = (subject ? subject.label : placement.subjectId) + ' · ' + (stage ? stage.label : placement.stageId) + ' · ' + gradeLabel;
+      return '<div class="admin-project-row" data-project-id="'+id+'">'+
+        '<div><strong>'+project.title+'</strong><small>'+meta+'</small></div>'+
+        '<label class="admin-status-toggle"><input type="checkbox" class="admin-project-online" '+(project.online ? 'checked' : '')+'> '+(project.online ? 'online' : 'offline')+'</label>'+
+        '<button class="admin-delete" type="button">L&ouml;schen</button>'+
+      '</div>';
+    }).join('');
+  }
+
+  async function setProjectOnline(projectId, online) {
+    var response = await fetch(PROJECT_API_URL + '/' + encodeURIComponent(projectId), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: adminPassword.value, online: online })
+    });
+    var data = await response.json().catch(function() { return {}; });
+    if (!response.ok) throw new Error(data.error || 'Status konnte nicht gespeichert werden.');
+    PROJECT_ITEMS[projectId] = data.item;
+    PROJECTS[projectId] = data.item.project;
+    refreshAllProjectViews();
+  }
+
+  async function deleteProject(projectId) {
+    var project = PROJECTS[projectId] || {};
+    if (!window.confirm('Projekt "' + (project.title || projectId) + '" wirklich löschen?')) return;
+    var response = await fetch(PROJECT_API_URL + '/' + encodeURIComponent(projectId), {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: adminPassword.value })
+    });
+    var data = await response.json().catch(function() { return {}; });
+    if (!response.ok) throw new Error(data.error || 'Projekt konnte nicht gelöscht werden.');
+    removeStoredProject(projectId);
+    if (detail.classList.contains('open')) closeDetail();
+    refreshAllProjectViews();
   }
 
   async function handleProjectSubmit(e) {
@@ -2739,6 +2860,7 @@
 
       addStoredProject(data.item);
       refreshProjectViews(subjectId, stageId, gradeId);
+      renderAdminProjectList();
       clearAdminForm();
       setAdminStatus(adminFormStatus, 'Projekt wurde auf dem Server gespeichert und ist jetzt in der \u00dcbersicht sichtbar.', 'ok');
     } catch (err) {
@@ -2758,6 +2880,30 @@
     projectStage.addEventListener('change', updateGradeOptions);
     document.getElementById('admin-reset').addEventListener('click', clearAdminForm);
     adminForm.addEventListener('submit', handleProjectSubmit);
+    adminProjectList.addEventListener('change', function(e) {
+      if (!e.target.classList.contains('admin-project-online')) return;
+      var row = e.target.closest('.admin-project-row');
+      var projectId = row && row.dataset.projectId;
+      if (!projectId) return;
+      setAdminStatus(adminFormStatus, 'Status wird gespeichert...', '');
+      setProjectOnline(projectId, e.target.checked)
+        .then(function() { setAdminStatus(adminFormStatus, 'Status wurde gespeichert.', 'ok'); })
+        .catch(function(err) {
+          e.target.checked = !e.target.checked;
+          renderAdminProjectList();
+          setAdminStatus(adminFormStatus, err.message || 'Status konnte nicht gespeichert werden.', 'error');
+        });
+    });
+    adminProjectList.addEventListener('click', function(e) {
+      if (!e.target.classList.contains('admin-delete')) return;
+      var row = e.target.closest('.admin-project-row');
+      var projectId = row && row.dataset.projectId;
+      if (!projectId) return;
+      setAdminStatus(adminFormStatus, 'Projekt wird gelöscht...', '');
+      deleteProject(projectId)
+        .then(function() { setAdminStatus(adminFormStatus, 'Projekt wurde gelöscht.', 'ok'); })
+        .catch(function(err) { setAdminStatus(adminFormStatus, err.message || 'Projekt konnte nicht gelöscht werden.', 'error'); });
+    });
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAdmin(); });
   }
 

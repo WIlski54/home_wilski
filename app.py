@@ -14,6 +14,7 @@ DATA_DIR = Path(os.environ.get("PROJECT_DATA_DIR", str(BASE_DIR / "data"))).reso
 PROJECTS_FILE = Path(os.environ.get("PROJECTS_FILE", str(DATA_DIR / "projects.json"))).resolve()
 UPLOAD_DIR = Path(os.environ.get("PROJECT_UPLOAD_DIR", str(BASE_DIR / "assets" / "project-previews" / "uploads"))).resolve()
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
+CURRENT_SEED_VERSION = 1
 
 ADMIN_PASSWORD = os.environ.get("PROJECT_ADMIN_PASSWORD", "wilski2026")
 
@@ -50,11 +51,58 @@ app = Flask(__name__, static_folder=None)
 app.config["MAX_CONTENT_LENGTH"] = MAX_IMAGE_BYTES + 1024 * 1024
 
 
+def load_seed_projects() -> dict:
+    seed_file = BASE_DIR / "data" / "projects.json"
+    if not seed_file.exists():
+        return {"items": [], "_seed_version": CURRENT_SEED_VERSION}
+    try:
+        data = json.loads(seed_file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"items": [], "_seed_version": CURRENT_SEED_VERSION}
+    if not isinstance(data.get("items"), list):
+        data["items"] = []
+    data["_seed_version"] = data.get("_seed_version", CURRENT_SEED_VERSION)
+    return data
+
+
+def write_projects_file(data: dict) -> None:
+    PROJECTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp_file = PROJECTS_FILE.with_suffix(".tmp")
+    tmp_file.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp_file.replace(PROJECTS_FILE)
+
+
 def ensure_storage() -> None:
     PROJECTS_FILE.parent.mkdir(parents=True, exist_ok=True)
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     if not PROJECTS_FILE.exists():
-        PROJECTS_FILE.write_text('{"items": []}\n', encoding="utf-8")
+        seed_data = load_seed_projects()
+        seed_data["_seed_version"] = CURRENT_SEED_VERSION
+        write_projects_file(seed_data)
+        return
+
+    try:
+        stored_data = json.loads(PROJECTS_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        stored_data = {"items": []}
+    if not isinstance(stored_data.get("items"), list):
+        stored_data["items"] = []
+
+    if stored_data.get("_seed_version") == CURRENT_SEED_VERSION:
+        return
+
+    seed_data = load_seed_projects()
+    existing_ids = {
+        item.get("project", {}).get("id")
+        for item in stored_data["items"]
+        if isinstance(item, dict)
+    }
+    for item in seed_data.get("items", []):
+        project_id = item.get("project", {}).get("id")
+        if project_id and project_id not in existing_ids:
+            stored_data["items"].append(item)
+    stored_data["_seed_version"] = CURRENT_SEED_VERSION
+    write_projects_file(stored_data)
 
 
 def read_projects() -> dict:
@@ -70,9 +118,24 @@ def read_projects() -> dict:
 
 def write_projects(data: dict) -> None:
     ensure_storage()
-    tmp_file = PROJECTS_FILE.with_suffix(".tmp")
-    tmp_file.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    tmp_file.replace(PROJECTS_FILE)
+    write_projects_file(data)
+
+
+def require_password() -> tuple[bool, str]:
+    if request.is_json:
+        supplied = (request.get_json(silent=True) or {}).get("password")
+    else:
+        supplied = request.form.get("password")
+    if supplied != ADMIN_PASSWORD:
+        return False, "Passwort stimmt nicht."
+    return True, ""
+
+
+def find_project(data: dict, project_id: str):
+    for index, item in enumerate(data.get("items", [])):
+        if item.get("project", {}).get("id") == project_id:
+            return index, item
+    return -1, None
 
 
 def clean_text(value: str, max_length: int = 3000) -> str:
@@ -146,8 +209,9 @@ def check_password():
 
 @app.post("/api/projects")
 def create_project():
-    if request.form.get("password") != ADMIN_PASSWORD:
-        return jsonify({"error": "Passwort stimmt nicht."}), 403
+    ok, message = require_password()
+    if not ok:
+        return jsonify({"error": message}), 403
 
     title = (request.form.get("title") or "").strip()
     tagline = (request.form.get("tagline") or "").strip()
@@ -207,6 +271,50 @@ def create_project():
     data["items"].append(item)
     write_projects(data)
     return jsonify({"item": item}), 201
+
+
+@app.patch("/api/projects/<project_id>")
+def update_project(project_id):
+    ok, message = require_password()
+    if not ok:
+        return jsonify({"error": message}), 403
+
+    body = request.get_json(silent=True) or {}
+    data = read_projects()
+    index, item = find_project(data, project_id)
+    if index < 0:
+        return jsonify({"error": "Projekt nicht gefunden."}), 404
+
+    if "online" in body:
+        item["project"]["online"] = bool(body["online"])
+    data["items"][index] = item
+    write_projects(data)
+    return jsonify({"item": item})
+
+
+@app.delete("/api/projects/<project_id>")
+def delete_project(project_id):
+    ok, message = require_password()
+    if not ok:
+        return jsonify({"error": message}), 403
+
+    data = read_projects()
+    index, item = find_project(data, project_id)
+    if index < 0:
+        return jsonify({"error": "Projekt nicht gefunden."}), 404
+
+    preview = item.get("preview", "")
+    if preview.startswith("uploads/"):
+        upload_path = (UPLOAD_DIR / Path(preview).name).resolve()
+        try:
+            if upload_path.relative_to(UPLOAD_DIR.resolve()) and upload_path.exists():
+                upload_path.unlink()
+        except (OSError, ValueError):
+            pass
+
+    del data["items"][index]
+    write_projects(data)
+    return jsonify({"ok": True, "id": project_id})
 
 
 @app.get("/<path:filename>")
