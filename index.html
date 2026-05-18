@@ -984,6 +984,19 @@
       text-transform: none;
     }
 
+    .cover-orbit-item.is-module.is-dense {
+      min-width: 148px;
+      max-width: 198px;
+      min-height: 54px;
+      padding-inline: 16px;
+      font-size: 0.78rem;
+    }
+
+    .cover-orbit-item span {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
     .cover-orbit-item small {
       display: block;
       color: rgba(218, 231, 248, 0.62);
@@ -1031,7 +1044,7 @@
       line-height: 1;
       opacity: 0;
       pointer-events: none;
-      transform: translate(-50%, calc(-50% + 250px)) scale(0.7);
+      transform: translate(calc(-50% + var(--orbit-close-x, 0px)), calc(-50% + var(--orbit-close-y, 250px))) scale(0.7);
       transition:
         opacity 0.28s ease,
         transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -1044,7 +1057,7 @@
     .coverflow-track.orbit-active .cover-orbit-close {
       opacity: 1;
       pointer-events: auto;
-      transform: translate(-50%, calc(-50% + 250px)) scale(1);
+      transform: translate(calc(-50% + var(--orbit-close-x, 0px)), calc(-50% + var(--orbit-close-y, 250px))) scale(1);
     }
 
     .cover-orbit-close:hover {
@@ -1511,16 +1524,18 @@
         min-height: 50px;
         padding-inline: 15px;
       }
+      .cover-orbit-item.is-module.is-dense {
+        min-width: 118px;
+        max-width: 156px;
+        padding-inline: 12px;
+        font-size: 0.66rem;
+      }
       .cover-orbit-item small {
         font-size: 0.48rem;
       }
       .cover-orbit-close {
         width: 38px;
         height: 38px;
-        transform: translate(-50%, calc(-50% + 212px)) scale(0.7);
-      }
-      .coverflow-track.orbit-active .cover-orbit-close {
-        transform: translate(-50%, calc(-50% + 212px)) scale(1);
       }
       .subject-project-list {
         grid-template-columns: 1fr;
@@ -1973,6 +1988,9 @@
   var PROJECT_API_URL = '/api/projects';
   var AUTH_API_URL = '/api/auth';
   var PROJECT_ITEMS = {};
+  var SEED_PROJECTS = JSON.parse(JSON.stringify(PROJECTS));
+  var SEED_PREVIEWS = JSON.parse(JSON.stringify(PREVIEWS));
+  var SEED_SUBJECTS = JSON.parse(JSON.stringify(SUBJECTS));
 
   PROJECTS = {};
   PREVIEWS = {};
@@ -2033,6 +2051,13 @@
     renderAdminProjectList();
   }
 
+  function applySeedProjects() {
+    PROJECTS = JSON.parse(JSON.stringify(SEED_PROJECTS));
+    PREVIEWS = JSON.parse(JSON.stringify(SEED_PREVIEWS));
+    SUBJECTS = JSON.parse(JSON.stringify(SEED_SUBJECTS));
+    PROJECT_ITEMS = {};
+  }
+
   function applyStoredProjects() {
     return fetch(PROJECT_API_URL)
       .then(function(response) {
@@ -2044,7 +2069,8 @@
         return data;
       })
       .catch(function() {
-        return { items: [] };
+        applySeedProjects();
+        return { items: Object.keys(PROJECTS).map(function(id) { return { project: PROJECTS[id] }; }), source: 'seed' };
       });
   }
 
@@ -2148,7 +2174,7 @@
     }).join('');
     var gradeButtons = stage.grades.map(function(grade) {
       var count = getGradeProjectIds(subject, state.stageId, grade).length;
-      var label = state.stageId === 'sek1' ? 'Jg. ' + grade : grade;
+      var label = getGradeLabel(state.stageId, grade);
       return '<button class="cb-grade-btn '+(grade === state.gradeId ? 'selected' : '')+' '+(count ? '' : 'empty')+'" type="button" data-grade="'+grade+'">'+label+'</button>';
     }).join('');
     var modules = ids.length ? ids.map(function(id) {
@@ -2214,6 +2240,46 @@
     subjectPanel.setAttribute('aria-hidden', 'true');
   }
 
+  function getGradeLabel(stageId, grade) {
+    return stageId === 'sek1' ? 'Jg. ' + grade : grade;
+  }
+
+  function renderSubjectProjectPanel(subjectId, stageId, gradeId) {
+    var subject = SUBJECTS[subjectId] || SUBJECTS.chemie;
+    var currentStageId = subject.stages[stageId] ? stageId : findDefaultStage(subject);
+    var stage = subject.stages[currentStageId];
+    var currentGradeId = stage.grades.indexOf(gradeId) >= 0 ? gradeId : findDefaultGrade(subject, currentStageId);
+    var ids = getGradeProjectIds(subject, currentStageId, currentGradeId);
+    var total = getSubjectProjectIds(subject).length;
+    activeSubjectId = subjectId;
+    activeStageId = currentStageId;
+    activeGradeId = currentGradeId;
+    subjectTitle.textContent = subject.label;
+    subjectCount.textContent = total === 1 ? '1 Modul insgesamt' : total + ' Module insgesamt';
+    subjectTabs.innerHTML = Object.keys(subject.stages).map(function(id) {
+      var currentStage = subject.stages[id];
+      var count = getStageProjectIds(currentStage).length;
+      return '<button class="subject-stage-tab '+(id === currentStageId ? 'active' : '')+'" type="button" data-stage="'+id+'">'+currentStage.label+' &middot; '+count+'</button>';
+    }).join('');
+    subjectGrades.innerHTML = stage.grades.map(function(grade) {
+      var count = getGradeProjectIds(subject, currentStageId, grade).length;
+      return '<button class="subject-grade '+(grade === currentGradeId ? 'active' : '')+' '+(count ? '' : 'empty')+'" type="button" data-grade="'+grade+'">'+getGradeLabel(currentStageId, grade)+'</button>';
+    }).join('');
+    subjectPanelMeta.textContent = stage.label + ' - ' + getGradeLabel(currentStageId, currentGradeId) + ' - ' + (ids.length === 1 ? '1 Modul' : ids.length + ' Module');
+    subjectList.innerHTML = ids.length ? ids.map(function(id) {
+      var p = PROJECTS[id];
+      if (!p) return '';
+      return '<button class="subject-project" type="button" data-id="'+id+'"><span><small>'+p.fach+'</small><strong>'+p.title+'</strong></span><em>&ouml;ffnen</em></button>';
+    }).join('') : '<div class="subject-empty">Noch keine Module f&uuml;r diese Auswahl hinterlegt.</div>';
+  }
+
+  function openSubjectProjectPanel(subjectId, stageId, gradeId) {
+    hideOrbit(true);
+    renderSubjectProjectPanel(subjectId, stageId, gradeId);
+    subjectStage.classList.add('panel-open');
+    subjectPanel.setAttribute('aria-hidden', 'false');
+  }
+
   function pulseCoverCard(card) {
     card.classList.remove('tap-pulse');
     void card.offsetWidth;
@@ -2236,6 +2302,25 @@
 
   function setOrbitActive(active) {
     coverflowTrack.classList.toggle('orbit-active', active);
+    if (active) updateOrbitClosePosition();
+  }
+
+  function updateOrbitClosePosition() {
+    var focused = coverflowCards[coverflowIndex];
+    var stageRect = coverflowStage.getBoundingClientRect();
+    var cardRect = focused ? focused.getBoundingClientRect() : null;
+    var stageWidth = stageRect.width || coverflowStage.clientWidth || window.innerWidth;
+    var stageHeight = stageRect.height || coverflowStage.clientHeight || window.innerHeight;
+    var cardWidth = cardRect && cardRect.width ? cardRect.width : Math.min(354, stageWidth * 0.3);
+    var cardHeight = cardRect && cardRect.height ? cardRect.height : cardWidth * 1.18;
+    var closeSize = stageWidth < 700 ? 38 : 44;
+    var edgeGap = stageWidth < 700 ? 10 : 14;
+    var maxX = Math.max(0, stageWidth / 2 - closeSize - edgeGap);
+    var maxY = Math.max(0, stageHeight / 2 - closeSize - edgeGap);
+    var x = Math.min(maxX, cardWidth * 0.5 + closeSize * 0.36);
+    var y = -Math.min(maxY, cardHeight * 0.5 - closeSize * 0.18);
+    coverflowTrack.style.setProperty('--orbit-close-x', Math.round(x) + 'px');
+    coverflowTrack.style.setProperty('--orbit-close-y', Math.round(y) + 'px');
   }
 
   function placeOrbitItems(items, opts) {
@@ -2340,7 +2425,7 @@
       return {
         value: grade,
         gradeId: grade,
-        label: stageId === 'sek1' ? 'Jg. ' + grade : grade,
+        label: getGradeLabel(stageId, grade),
         sub: ids.length ? ids.length + ' Module' : 'Noch leer',
         empty: !ids.length
       };
@@ -2358,7 +2443,13 @@
     orbitLevel = 'module';
     orbitStageId = stageId;
     orbitGradeId = gradeId;
-    var radius = Math.max(188, Math.min(305, coverflowStage.clientWidth * 0.28, coverflowStage.clientHeight * 0.52));
+    var stageWidth = coverflowStage.clientWidth;
+    var stageHeight = coverflowStage.clientHeight;
+    var dense = ids.length > 4;
+    var radius = dense
+      ? Math.max(210, Math.min(360, stageWidth * 0.33, stageHeight * 0.58))
+      : Math.max(188, Math.min(305, stageWidth * 0.28, stageHeight * 0.52));
+    var spread = dense ? Math.min(166, 116 + ids.length * 7) : 128;
     var items = ids.map(function(id) {
       var p = PROJECTS[id];
       return {
@@ -2370,10 +2461,25 @@
     });
     placeOrbitItems(items, {
       radius: radius,
-      startAngle: 26,
-      endAngle: 154,
-      classes: 'is-module'
+      startAngle: 90 - spread / 2,
+      endAngle: 90 + spread / 2,
+      classes: 'is-module' + (dense ? ' is-dense' : '')
     });
+  }
+
+  function refreshOrbitLayout() {
+    if (!orbitLevel) {
+      renderCoverflow();
+      return;
+    }
+    if (orbitLevel === 'stage') {
+      showStageOrbit();
+    } else if (orbitLevel === 'grade') {
+      showGradeOrbit(orbitStageId);
+    } else if (orbitLevel === 'module') {
+      var subject = getFocusedSubject();
+      showModuleOrbit(orbitStageId, orbitGradeId, getGradeProjectIds(subject, orbitStageId, orbitGradeId));
+    }
   }
 
   function selectOrbitGrade(item) {
@@ -2402,7 +2508,11 @@
       }, 230);
     } else if (ids.length > 1) {
       window.setTimeout(function() {
-        showModuleOrbit(orbitStageId, grade, ids);
+        if (ids.length > 4 || coverflowStage.clientWidth < 640) {
+          openSubjectProjectPanel(subjectId, orbitStageId, grade);
+        } else {
+          showModuleOrbit(orbitStageId, grade, ids);
+        }
       }, 260);
     }
   }
@@ -2435,6 +2545,7 @@
       dot.classList.toggle('active', dot.dataset.subjectDot === activeSubject);
     });
     activeSubjectId = activeSubject;
+    if (orbitLevel) updateOrbitClosePosition();
   }
 
   function moveCoverflow(delta) {
@@ -2585,6 +2696,24 @@
 
   if (subjectPanelBackdrop) subjectPanelBackdrop.addEventListener('click', closeSubjectPanel);
   if (subjectPanelClose) subjectPanelClose.addEventListener('click', closeSubjectPanel);
+  if (subjectTabs) subjectTabs.addEventListener('click', function(e) {
+    var tab = e.target.closest('.subject-stage-tab');
+    if (!tab) return;
+    var subject = SUBJECTS[activeSubjectId] || SUBJECTS.chemie;
+    var nextStageId = tab.dataset.stage;
+    renderSubjectProjectPanel(activeSubjectId, nextStageId, findDefaultGrade(subject, nextStageId));
+  });
+  if (subjectGrades) subjectGrades.addEventListener('click', function(e) {
+    var grade = e.target.closest('.subject-grade');
+    if (!grade) return;
+    renderSubjectProjectPanel(activeSubjectId, activeStageId, grade.dataset.grade);
+  });
+  if (subjectList) subjectList.addEventListener('click', function(e) {
+    var project = e.target.closest('.subject-project');
+    if (!project) return;
+    closeSubjectPanel();
+    openDetail(project.dataset.id);
+  });
 
   document.addEventListener('keydown', function(e) {
     var tag = (e.target && e.target.tagName || '').toLowerCase();
@@ -2615,7 +2744,7 @@
     moveCoverflow(e.deltaY > 0 ? 1 : -1);
   }, { passive: false });
 
-  window.addEventListener('resize', renderCoverflow);
+  window.addEventListener('resize', refreshOrbitLayout);
   attachCoverflowDrag();
   coverflowCards.forEach(renderCardBack);
   renderCoverflow();
