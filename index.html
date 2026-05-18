@@ -2317,8 +2317,8 @@
     var edgeGap = stageWidth < 700 ? 10 : 14;
     var maxX = Math.max(0, stageWidth / 2 - closeSize - edgeGap);
     var maxY = Math.max(0, stageHeight / 2 - closeSize - edgeGap);
-    var x = Math.min(maxX, cardWidth * 0.5 + closeSize * 0.36);
-    var y = -Math.min(maxY, cardHeight * 0.5 - closeSize * 0.18);
+    var x = Math.min(maxX, cardWidth * 0.5 + closeSize * 1.45);
+    var y = -Math.min(maxY, cardHeight * 0.5 + closeSize * 0.76);
     coverflowTrack.style.setProperty('--orbit-close-x', Math.round(x) + 'px');
     coverflowTrack.style.setProperty('--orbit-close-y', Math.round(y) + 'px');
   }
