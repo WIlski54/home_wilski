@@ -506,6 +506,10 @@
       user-select: none;
     }
 
+    .coverflow-stage.orbit-active {
+      overflow: visible;
+    }
+
     .coverflow-track {
       position: relative;
       width: 100%;
@@ -1054,7 +1058,7 @@
       -webkit-backdrop-filter: blur(20px);
     }
 
-    .coverflow-track.orbit-active .cover-orbit-close {
+    .coverflow-stage.orbit-active .cover-orbit-close {
       opacity: 1;
       pointer-events: auto;
       transform: translate(calc(-50% + var(--orbit-close-x, 0px)), calc(-50% + var(--orbit-close-y, 250px))) scale(1);
@@ -1809,9 +1813,9 @@
             <div class="cover-back" aria-hidden="true"></div>
           </div>
         </div>
-        <div class="cover-orbit-anchor" id="cover-orbit-anchor" aria-live="polite"></div>
-        <button class="cover-orbit-close" id="cover-orbit-close" type="button" aria-label="Auswahl schlie&szlig;en">&times;</button>
       </div>
+      <div class="cover-orbit-anchor" id="cover-orbit-anchor" aria-live="polite"></div>
+      <button class="cover-orbit-close" id="cover-orbit-close" type="button" aria-label="Auswahl schlie&szlig;en">&times;</button>
     </div>
     <div class="coverflow-hint" aria-hidden="true">
       <span class="coverflow-dot" data-subject-dot="biologie"></span>
@@ -2301,6 +2305,7 @@
   }
 
   function setOrbitActive(active) {
+    coverflowStage.classList.toggle('orbit-active', active);
     coverflowTrack.classList.toggle('orbit-active', active);
     if (active) updateOrbitClosePosition();
   }
@@ -2319,6 +2324,8 @@
     var maxY = Math.max(0, stageHeight / 2 - closeSize - edgeGap);
     var x = Math.min(maxX, cardWidth * 0.5 + closeSize * 1.45);
     var y = -Math.min(maxY, cardHeight * 0.5 + closeSize * 0.76);
+    coverflowStage.style.setProperty('--orbit-close-x', Math.round(x) + 'px');
+    coverflowStage.style.setProperty('--orbit-close-y', Math.round(y) + 'px');
     coverflowTrack.style.setProperty('--orbit-close-x', Math.round(x) + 'px');
     coverflowTrack.style.setProperty('--orbit-close-y', Math.round(y) + 'px');
   }
