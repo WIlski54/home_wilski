@@ -315,6 +315,102 @@
       display: none;
     }
 
+    .splash {
+      display: block;
+      cursor: pointer;
+      background:
+        radial-gradient(ellipse 90% 60% at 50% 38%, rgba(20, 52, 104, 0.45) 0%, transparent 62%),
+        radial-gradient(ellipse 70% 50% at 82% 88%, rgba(120, 8, 80, 0.2) 0%, transparent 60%),
+        #070b12;
+      transition: opacity 0.9s ease;
+      perspective: none;
+    }
+
+    .splash::before {
+      display: none;
+    }
+
+    .splash::after {
+      z-index: 2;
+      background: radial-gradient(circle at 50% 42%, transparent 0 46%, rgba(5, 8, 14, 0.55) 100%);
+      transition: opacity 0.8s ease;
+    }
+
+    .splash.warping::after {
+      opacity: 0;
+    }
+
+    .splash.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #splash-scene {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .splash-flash.fire {
+      animation: splash-flash-fire 0.55s ease-out forwards;
+    }
+
+    @keyframes splash-flash-fire {
+      0% { opacity: 0; }
+      30% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+
+    .splash-hint {
+      top: clamp(70px, 16vh, 150px);
+      font-size: clamp(0.82rem, 1.3vw, 1.05rem);
+      font-weight: 900;
+      letter-spacing: 3.4px;
+      color: rgba(228, 240, 255, 0.92);
+      text-shadow:
+        0 0 22px rgba(96, 176, 255, 0.45),
+        0 0 40px rgba(173, 0, 124, 0.25);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      animation: hint-pulse 2.6s ease-in-out infinite;
+    }
+
+    .splash-hint small {
+      display: block;
+      margin-top: 9px;
+      color: rgba(140, 170, 210, 0.6);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: none;
+    }
+
+    .splash.warping .splash-hint {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-14px);
+      animation: none;
+    }
+
+    .splash-info {
+      z-index: 5;
+      border-left: 2px solid rgba(0, 106, 179, 0.55);
+      color: rgba(150, 176, 210, 0.62);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .splash-info-title {
+      font-weight: 900;
+      color: rgba(170, 200, 235, 0.8);
+      letter-spacing: 1.6px;
+    }
+
+    .splash.warping .splash-info {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
     /* ===== MAIN CONTENT ===== */
     .container {
       max-width: 920px;
@@ -1610,17 +1706,13 @@
 
 <!-- ===== SPLASH SCREEN ===== -->
 <div class="splash" id="splash">
-  <div class="splash-logo-wrap" id="splash-logo">
-    <div class="splash-logo-mask"></div>
-    <img class="splash-glass" src="glaslogo_wk..png" alt="" aria-hidden="true">
-  </div>
-  <div class="splash-tunnel"></div>
-  <div class="splash-flash"></div>
+  <canvas id="splash-scene" aria-hidden="true"></canvas>
+  <div class="splash-flash" id="splash-flash"></div>
   <div class="splash-info" aria-label="Informationen zur Plattform">
     <div class="splash-info-title">Digitale Lernplattform</div>
     <p class="splash-info-text">Unterrichtsprojekte und digitale Lernmaterialien von S. Wilski f&uuml;r die Gesamtschule Meiderich. Einige Module nutzen externe Dienste oder KI-gest&uuml;tzte R&uuml;ckmeldungen und dienen schulischen Lernzwecken.</p>
   </div>
-  <div class="splash-hint">Klicke zum Betreten</div>
+  <div class="splash-hint">Klicke zum Betreten<small>Unterrichtsprojekte &middot; S. Wilski</small></div>
 </div>
 
 <!-- ===== LANDING PAGE ===== -->
@@ -1907,20 +1999,907 @@
 
   /* ===== SPLASH ===== */
   var splash = document.getElementById('splash');
+  var splashFlash = document.getElementById('splash-flash');
+  var splashCanvas = document.getElementById('splash-scene');
   var splashStarted = false;
-  splash.addEventListener('click', function() {
+  var splashReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var splashEnter3d = null;
+  var splashStop3d = null;
+  var splashSceneClaimed = false;
+
+  function revealSplashContent() {
+    document.body.classList.add('splash-revealing');
+    splash.classList.add('fade-out');
+  }
+
+  function finishSplashContent() {
+    splash.classList.add('done');
+    document.body.classList.remove('splash-active', 'splash-entering', 'splash-revealing');
+    if (splashStop3d) splashStop3d();
+  }
+
+  function fallbackSplashEnter() {
+    splash.classList.add('warping');
+    if (splashFlash) splashFlash.classList.add('fire');
+    window.setTimeout(revealSplashContent, 220);
+    window.setTimeout(finishSplashContent, 920);
+  }
+
+  function enterSplash() {
     if (splashStarted) return;
     splashStarted = true;
     document.body.classList.add('splash-entering');
-    splash.classList.add('zooming');
-    setTimeout(function() {
-      document.body.classList.add('splash-revealing');
-    }, 2200);
-    setTimeout(function() {
-      splash.classList.add('done');
-      document.body.classList.remove('splash-active', 'splash-entering', 'splash-revealing');
-    }, 4700);
+    if (!splashReducedMotion && splashEnter3d) {
+      splashEnter3d();
+    } else {
+      fallbackSplashEnter();
+    }
+  }
+
+  splash.addEventListener('click', enterSplash);
+  window.addEventListener('keydown', function(e) {
+    if (document.body.classList.contains('splash-active') && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      enterSplash();
+    }
   });
+
+  function loadSplashThree(srcs, index) {
+    if (index >= srcs.length) return;
+    var script = document.createElement('script');
+    script.src = srcs[index];
+    script.onload = function() {
+      if (window.THREE) bootSplashScene(window.THREE);
+    };
+    script.onerror = function() {
+      loadSplashThree(srcs, index + 1);
+    };
+    document.head.appendChild(script);
+  }
+
+  function bootSplashScene(THREE) {
+    if (!splashCanvas || splashReducedMotion) return;
+    if (splashSceneClaimed) return;
+    splashSceneClaimed = true;
+
+    var splashLive = true;
+    var splashState = 'idle';
+    var splashClickTime = 0;
+    var splashWarp = 0;
+    var splashDissolved = false;
+    var splashRevealed = false;
+    var splashFinished = false;
+    var splashPointerX = 0;
+    var splashPointerY = 0;
+    var splashCamX = 0;
+    var splashCamY = 0;
+    var splashStartedAt = performance.now();
+
+    var splashCfg = {
+      atomCount: 150,
+      fieldW: 1700,
+      fieldH: 1050,
+      zNear: 720,
+      zFar: -2700,
+      camZ: 640,
+      blue: [0x4a9fe0, 0x6ec5ff, 0x2f7fc4],
+      orange: 0xffc83a,
+      magenta: 0xff5fd0
+    };
+
+    var renderer = new THREE.WebGLRenderer({ canvas: splashCanvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    var scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x070b12, 0.00048);
+
+    var camera = new THREE.PerspectiveCamera(62, 1, 1, 6000);
+    camera.position.set(0, 0, splashCfg.camZ);
+
+    scene.add(new THREE.AmbientLight(0x89bfff, 0.78));
+    var keyLight = new THREE.PointLight(0x6ec5ff, 1.85, 2600);
+    keyLight.position.set(-420, 360, 560);
+    scene.add(keyLight);
+    var rimLight = new THREE.PointLight(0xff5fd0, 1.35, 2200);
+    rimLight.position.set(520, -240, 120);
+    scene.add(rimLight);
+
+    function resizeSplashScene() {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resizeSplashScene);
+    resizeSplashScene();
+
+    function makeDotTexture() {
+      var c = document.createElement('canvas');
+      c.width = c.height = 128;
+      var x = c.getContext('2d');
+      var g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.25, 'rgba(255,255,255,.9)');
+      g.addColorStop(0.6, 'rgba(255,255,255,.18)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g;
+      x.fillRect(0, 0, 128, 128);
+      var t = new THREE.Texture(c);
+      t.needsUpdate = true;
+      return t;
+    }
+
+    function makeRingTexture() {
+      var size = 512;
+      var c = document.createElement('canvas');
+      c.width = c.height = size;
+      var x = c.getContext('2d');
+      var cx = size / 2;
+      var cy = size / 2;
+      var g = x.createLinearGradient(0, 0, size, size);
+      g.addColorStop(0, 'rgba(110,197,255,.95)');
+      g.addColorStop(0.5, 'rgba(0,106,179,.55)');
+      g.addColorStop(1, 'rgba(173,0,124,.85)');
+      x.strokeStyle = g;
+      x.lineWidth = 3;
+      x.beginPath();
+      x.arc(cx, cy, 212, 0, Math.PI * 2);
+      x.stroke();
+      x.strokeStyle = 'rgba(150,205,255,.8)';
+      x.lineWidth = 2;
+      for (var i = 0; i < 60; i++) {
+        var a = i / 60 * Math.PI * 2;
+        var longTick = i % 5 === 0;
+        x.beginPath();
+        x.moveTo(cx + Math.cos(a) * 216, cy + Math.sin(a) * 216);
+        x.lineTo(cx + Math.cos(a) * (longTick ? 234 : 226), cy + Math.sin(a) * (longTick ? 234 : 226));
+        x.stroke();
+      }
+      x.strokeStyle = 'rgba(255,200,58,.9)';
+      x.lineWidth = 4;
+      for (var k = 0; k < 4; k++) {
+        var base = k * Math.PI / 2 + Math.PI / 4;
+        x.beginPath();
+        x.arc(cx, cy, 196, base - 0.16, base + 0.16);
+        x.stroke();
+      }
+      var t = new THREE.Texture(c);
+      t.needsUpdate = true;
+      return t;
+    }
+
+    function makeNebulaTexture() {
+      var c = document.createElement('canvas');
+      c.width = c.height = 256;
+      var x = c.getContext('2d');
+      var g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+      g.addColorStop(0, 'rgba(255,255,255,.55)');
+      g.addColorStop(0.5, 'rgba(255,255,255,.12)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g;
+      x.fillRect(0, 0, 256, 256);
+      var t = new THREE.Texture(c);
+      t.needsUpdate = true;
+      return t;
+    }
+
+    function makeLogoTexture() {
+      var size = 1024;
+      var c = document.createElement('canvas');
+      c.width = c.height = size;
+      var x = c.getContext('2d');
+      var cx = size / 2;
+      var cy = size / 2;
+      var disc = x.createRadialGradient(cx - 110, cy - 130, 40, cx, cy, 470);
+      disc.addColorStop(0, 'rgba(120,180,235,.95)');
+      disc.addColorStop(0.45, 'rgba(20,70,128,.92)');
+      disc.addColorStop(0.8, 'rgba(8,28,55,.95)');
+      disc.addColorStop(1, 'rgba(6,16,32,.6)');
+      x.fillStyle = disc;
+      x.beginPath();
+      x.arc(cx, cy, 420, 0, Math.PI * 2);
+      x.fill();
+      x.lineWidth = 8;
+      var rim = x.createLinearGradient(0, 0, size, size);
+      rim.addColorStop(0, 'rgba(150,210,255,.95)');
+      rim.addColorStop(0.6, 'rgba(0,106,179,.5)');
+      rim.addColorStop(1, 'rgba(173,0,124,.85)');
+      x.strokeStyle = rim;
+      x.beginPath();
+      x.arc(cx, cy, 420, 0, Math.PI * 2);
+      x.stroke();
+      x.save();
+      x.beginPath();
+      x.arc(cx, cy, 406, 0, Math.PI * 2);
+      x.clip();
+      var gloss = x.createLinearGradient(0, cy - 420, 0, cy + 40);
+      gloss.addColorStop(0, 'rgba(255,255,255,.5)');
+      gloss.addColorStop(0.5, 'rgba(255,255,255,.05)');
+      gloss.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = gloss;
+      x.fillRect(cx - 420, cy - 420, 840, 460);
+      x.restore();
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.font = '900 340px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      var tg = x.createLinearGradient(0, cy - 180, 0, cy + 180);
+      tg.addColorStop(0, '#ffffff');
+      tg.addColorStop(0.5, '#cfe6ff');
+      tg.addColorStop(1, '#7fb6e8');
+      x.shadowColor = 'rgba(110,197,255,.7)';
+      x.shadowBlur = 44;
+      x.fillStyle = tg;
+      x.fillText('WK', cx, cy + 18);
+      x.shadowBlur = 0;
+      x.fillStyle = 'rgba(247,184,0,.95)';
+      x.beginPath();
+      x.arc(cx + 250, cy + 250, 16, 0, Math.PI * 2);
+      x.fill();
+      var t = new THREE.Texture(c);
+      t.needsUpdate = true;
+      return t;
+    }
+
+    var dotTex = makeDotTexture();
+    var ringTex = makeRingTexture();
+    var nebTex = makeNebulaTexture();
+
+    var nebGroup = new THREE.Group();
+    scene.add(nebGroup);
+    [
+      [0x0a3a72, 1500, -2300, -380, -160],
+      [0x6a0a52, 1200, -2550, 420, 240],
+      [0x0c4a82, 1700, -2650, 60, -40]
+    ].forEach(function(d) {
+      var m = new THREE.Mesh(
+        new THREE.PlaneGeometry(d[1], d[1]),
+        new THREE.MeshBasicMaterial({
+          map: nebTex,
+          color: d[0],
+          transparent: true,
+          opacity: 0.22,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      m.position.set(d[3], d[4], d[2]);
+      m.userData.spin = (Math.random() - 0.5) * 0.0006;
+      nebGroup.add(m);
+    });
+
+    var atoms = [];
+    var n = splashCfg.atomCount;
+    var posArr = new Float32Array(n * 3);
+    var colArr = new Float32Array(n * 3);
+    var linePos = new Float32Array(n * 2 * 3);
+    var lineCol = new Float32Array(n * 2 * 3);
+
+    function pickSplashColor() {
+      var r = Math.random();
+      if (r < 0.12) return new THREE.Color(splashCfg.orange);
+      if (r < 0.30) return new THREE.Color(splashCfg.magenta);
+      return new THREE.Color(splashCfg.blue[(Math.random() * 3) | 0]);
+    }
+
+    function spawnAtom(atom, farOnly) {
+      atom.x = (Math.random() - 0.5) * splashCfg.fieldW;
+      atom.y = (Math.random() - 0.5) * splashCfg.fieldH;
+      atom.z = farOnly ? splashCfg.zFar + Math.random() * 200 : splashCfg.zFar + Math.random() * (splashCfg.zNear - splashCfg.zFar);
+      atom.pz = atom.z;
+      atom.baseVz = 0.6 + Math.random() * 1.05;
+      atom.wob = 0.3 + Math.random() * 0.9;
+      atom.ph = Math.random() * Math.PI * 2;
+      if (!atom.col) atom.col = pickSplashColor();
+    }
+
+    for (var atomIndex = 0; atomIndex < n; atomIndex++) {
+      var atom = {};
+      spawnAtom(atom, false);
+      atoms.push(atom);
+    }
+
+    var pointsGeo = new THREE.BufferGeometry();
+    pointsGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+    pointsGeo.setAttribute('color', new THREE.BufferAttribute(colArr, 3));
+    var pointsMat = new THREE.PointsMaterial({
+      size: 26,
+      map: dotTex,
+      vertexColors: true,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true
+    });
+    var points = new THREE.Points(pointsGeo, pointsMat);
+    points.frustumCulled = false;
+    scene.add(points);
+
+    var lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+    lineGeo.setAttribute('color', new THREE.BufferAttribute(lineCol, 3));
+    var lineMat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    var streaks = new THREE.LineSegments(lineGeo, lineMat);
+    streaks.frustumCulled = false;
+    scene.add(streaks);
+
+    var bondPairs = [];
+    for (var p = 0; p < n && bondPairs.length < 120; p++) {
+      for (var q = p + 1; q < n && bondPairs.length < 120; q++) {
+        var dx = atoms[p].x - atoms[q].x;
+        var dy = atoms[p].y - atoms[q].y;
+        var dz = atoms[p].z - atoms[q].z;
+        if (dx * dx + dy * dy + dz * dz < 90000 && Math.random() < 0.4) bondPairs.push([p, q]);
+      }
+    }
+    var bondPos = new Float32Array(bondPairs.length * 2 * 3);
+    var bondGeo = new THREE.BufferGeometry();
+    bondGeo.setAttribute('position', new THREE.BufferAttribute(bondPos, 3));
+    var bondMat = new THREE.LineBasicMaterial({
+      color: 0x4a9fe0,
+      transparent: true,
+      opacity: 0.34,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    var bonds = new THREE.LineSegments(bondGeo, bondMat);
+    bonds.frustumCulled = false;
+    scene.add(bonds);
+
+    var logoGroup = new THREE.Group();
+    scene.add(logoGroup);
+
+    var logoMat = new THREE.MeshBasicMaterial({ map: makeLogoTexture(), transparent: true, depthWrite: false, opacity: 0 });
+    var logoMesh = new THREE.Mesh(new THREE.PlaneGeometry(440, 440), logoMat);
+    logoGroup.add(logoMesh);
+
+    function addSplashRing(scale, opacity, speed) {
+      var m = new THREE.Mesh(
+        new THREE.PlaneGeometry(720 * scale, 720 * scale),
+        new THREE.MeshBasicMaterial({
+          map: ringTex,
+          transparent: true,
+          opacity: opacity,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      m.userData.spin = speed;
+      logoGroup.add(m);
+      return m;
+    }
+
+    var ring1 = addSplashRing(1, 0.55, 0.0045);
+    var ring2 = addSplashRing(1.22, 0.3, -0.0029);
+
+    var artifactGroup = new THREE.Group();
+    artifactGroup.position.set(0, 0, -145);
+    logoGroup.add(artifactGroup);
+    var artifactMat = new THREE.MeshStandardMaterial({
+      color: 0x8fd7ff,
+      emissive: 0x0c5e9e,
+      emissiveIntensity: 0.9,
+      metalness: 0.72,
+      roughness: 0.28,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    var artifact = new THREE.Mesh(new THREE.TorusKnotGeometry(118, 18, 180, 22), artifactMat);
+    artifactGroup.add(artifact);
+    var artifactWire = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(118, 18, 180, 22),
+      new THREE.MeshBasicMaterial({
+        color: 0xff7ad8,
+        transparent: true,
+        opacity: 0,
+        wireframe: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      })
+    );
+    artifactGroup.add(artifactWire);
+    var artifactHalo = new THREE.Mesh(
+      new THREE.PlaneGeometry(560, 560),
+      new THREE.MeshBasicMaterial({
+        map: ringTex,
+        color: 0x6ec5ff,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      })
+    );
+    artifactHalo.position.z = -24;
+    artifactGroup.add(artifactHalo);
+
+    function setArtifactOpacity(core, wire, halo) {
+      artifactMat.opacity = core;
+      artifactWire.material.opacity = wire;
+      artifactHalo.material.opacity = halo;
+    }
+
+    var burstCount = 160;
+    var burstPos = new Float32Array(burstCount * 3);
+    var burstCol = new Float32Array(burstCount * 3);
+    var burstVel = [];
+    var burstGeo = new THREE.BufferGeometry();
+    burstGeo.setAttribute('position', new THREE.BufferAttribute(burstPos, 3));
+    burstGeo.setAttribute('color', new THREE.BufferAttribute(burstCol, 3));
+    var burstMat = new THREE.PointsMaterial({
+      size: 34,
+      map: dotTex,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true
+    });
+    var burst = new THREE.Points(burstGeo, burstMat);
+    burst.frustumCulled = false;
+    burst.visible = false;
+    scene.add(burst);
+    var burstLife = 0;
+
+    function fireSplashBurst(originZ) {
+      burstVel.length = 0;
+      for (var i = 0; i < burstCount; i++) {
+        burstPos[i * 3] = 0;
+        burstPos[i * 3 + 1] = 0;
+        burstPos[i * 3 + 2] = originZ;
+        var c = pickSplashColor();
+        burstCol[i * 3] = c.r;
+        burstCol[i * 3 + 1] = c.g;
+        burstCol[i * 3 + 2] = c.b;
+        var ang = Math.random() * Math.PI * 2;
+        var rad = 2 + Math.random() * 9;
+        burstVel.push([Math.cos(ang) * rad, Math.sin(ang) * rad, 5 + Math.random() * 16]);
+      }
+      burstGeo.attributes.position.needsUpdate = true;
+      burstGeo.attributes.color.needsUpdate = true;
+      burst.visible = true;
+      burstMat.opacity = 1;
+      burstLife = 1;
+    }
+
+    function smoothSplash(t) {
+      t = Math.max(0, Math.min(1, t));
+      return t * t * (3 - 2 * t);
+    }
+
+    function warpAt(ms) {
+      if (ms < 900) return smoothSplash(ms / 900) * 0.4;
+      if (ms < 2100) return 0.4 + smoothSplash((ms - 900) / 1200) * 0.6;
+      return 1 - smoothSplash((ms - 2100) / 950) * 0.94;
+    }
+
+    window.addEventListener('pointermove', function(e) {
+      splashPointerX = (e.clientX / window.innerWidth - 0.5) * 2;
+      splashPointerY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    splashEnter3d = function() {
+      splashState = 'warping';
+      splash.classList.add('warping');
+      splashClickTime = performance.now();
+    };
+
+    splashStop3d = function() {
+      splashLive = false;
+      window.removeEventListener('resize', resizeSplashScene);
+      renderer.dispose();
+    };
+
+    function splashFrame(now) {
+      if (!splashLive) return;
+      requestAnimationFrame(splashFrame);
+      var t = (now - splashStartedAt) / 1000;
+
+      if (splashState === 'warping') {
+        var ms = now - splashClickTime;
+        splashWarp = warpAt(ms);
+        if (ms >= 2400 && !splashRevealed) {
+          splashRevealed = true;
+          revealSplashContent();
+        }
+        if (ms >= 3450 && !splashFinished) {
+          splashFinished = true;
+          finishSplashContent();
+        }
+      }
+
+      var w = Math.max(0, Math.min(1, splashWarp));
+      var wEase = smoothSplash(splashState === 'warping' ? Math.min((now - splashClickTime) / 2100, 1) : 0);
+
+      if (splashState === 'idle') {
+        var breathe = 1 + Math.sin(t * 1.4) * 0.018;
+        logoGroup.scale.setScalar(breathe);
+        logoGroup.rotation.y = splashPointerX * 0.18;
+        logoGroup.rotation.x = -splashPointerY * 0.13;
+        logoMat.opacity = Math.min(1, t * 0.7);
+        artifactGroup.scale.setScalar(1 + Math.sin(t * 1.9) * 0.035);
+        setArtifactOpacity(Math.min(0.68, t * 0.45), Math.min(0.34, t * 0.32), Math.min(0.36, t * 0.24));
+      }
+
+      if (splashState === 'warping') {
+        logoGroup.rotation.y *= 0.92;
+        logoGroup.rotation.x *= 0.92;
+        logoGroup.position.z = wEase * 640;
+        logoGroup.scale.setScalar(1 + wEase * 5.4);
+        artifactGroup.scale.setScalar(1 + wEase * 0.36);
+        if (logoGroup.position.z > 505 && !splashDissolved) {
+          splashDissolved = true;
+          fireSplashBurst(logoGroup.position.z);
+          if (splashFlash) splashFlash.classList.add('fire');
+          logoMat.opacity = 0;
+          ring1.material.opacity = 0;
+          ring2.material.opacity = 0;
+          setArtifactOpacity(0, 0, 0);
+        }
+        if (!splashDissolved) {
+          logoMat.opacity = Math.max(0, 1 - wEase * 0.3);
+          ring1.material.opacity = 0.55 * (1 - w * 0.6);
+          ring2.material.opacity = 0.3 * (1 - w * 0.6);
+          setArtifactOpacity(0.68 * (1 - wEase * 0.34), 0.34 * (1 - wEase * 0.2), 0.36 * (1 - wEase * 0.46));
+        }
+      }
+
+      ring1.rotation.z += ring1.userData.spin;
+      ring2.rotation.z += ring2.userData.spin;
+      artifactGroup.rotation.y += 0.006 + w * 0.024;
+      artifactGroup.rotation.x = Math.sin(t * 0.8) * 0.08 - w * 0.18;
+      artifactHalo.rotation.z -= 0.005 + w * 0.018;
+      nebGroup.children.forEach(function(m) { m.rotation.z += m.userData.spin; });
+      nebGroup.position.z = w * 900;
+
+      var dzBase = 0.55 + w * w * 210;
+      for (var i = 0; i < n; i++) {
+        var a = atoms[i];
+        a.pz = a.z;
+        a.z += a.baseVz * dzBase;
+        if (w < 0.5) {
+          a.x += Math.sin(t * a.wob + a.ph) * 0.18 * (1 - w);
+          a.y += Math.cos(t * a.wob * 0.8 + a.ph) * 0.15 * (1 - w);
+        }
+        if (a.z > splashCfg.camZ + 60) spawnAtom(a, true);
+
+        posArr[i * 3] = a.x;
+        posArr[i * 3 + 1] = a.y;
+        posArr[i * 3 + 2] = a.z;
+        colArr[i * 3] = a.col.r;
+        colArr[i * 3 + 1] = a.col.g;
+        colArr[i * 3 + 2] = a.col.b;
+
+        var tail = Math.min((a.z - a.pz) * 1.7, 520) * (0.25 + w);
+        var o = i * 6;
+        linePos[o] = a.x;
+        linePos[o + 1] = a.y;
+        linePos[o + 2] = a.z;
+        linePos[o + 3] = a.x;
+        linePos[o + 4] = a.y;
+        linePos[o + 5] = a.z - tail;
+        lineCol[o] = a.col.r;
+        lineCol[o + 1] = a.col.g;
+        lineCol[o + 2] = a.col.b;
+        lineCol[o + 3] = a.col.r * 0.04;
+        lineCol[o + 4] = a.col.g * 0.04;
+        lineCol[o + 5] = a.col.b * 0.04;
+      }
+      pointsGeo.attributes.position.needsUpdate = true;
+      pointsGeo.attributes.color.needsUpdate = true;
+      lineGeo.attributes.position.needsUpdate = true;
+      lineGeo.attributes.color.needsUpdate = true;
+      lineMat.opacity = Math.min(0.95, w * 1.2);
+      pointsMat.size = 26 + w * 16;
+      pointsMat.opacity = 1 - w * 0.25;
+
+      bondMat.opacity = 0.34 * Math.max(0, 1 - w * 3);
+      if (bondMat.opacity > 0.01) {
+        for (var b = 0; b < bondPairs.length; b++) {
+          var bp = atoms[bondPairs[b][0]];
+          var bq = atoms[bondPairs[b][1]];
+          var bo = b * 6;
+          bondPos[bo] = bp.x;
+          bondPos[bo + 1] = bp.y;
+          bondPos[bo + 2] = bp.z;
+          bondPos[bo + 3] = bq.x;
+          bondPos[bo + 4] = bq.y;
+          bondPos[bo + 5] = bq.z;
+        }
+        bondGeo.attributes.position.needsUpdate = true;
+        bonds.visible = true;
+      } else {
+        bonds.visible = false;
+      }
+
+      if (burstLife > 0) {
+        burstLife -= 0.022;
+        for (var k = 0; k < burstCount; k++) {
+          var v = burstVel[k];
+          burstPos[k * 3] += v[0];
+          burstPos[k * 3 + 1] += v[1];
+          burstPos[k * 3 + 2] += v[2];
+        }
+        burstGeo.attributes.position.needsUpdate = true;
+        burstMat.opacity = Math.max(0, burstLife);
+        if (burstLife <= 0) burst.visible = false;
+      }
+
+      var parallax = splashState === 'idle' ? 1 : Math.max(0, 1 - w * 2);
+      splashCamX += (splashPointerX * 42 * parallax - splashCamX) * 0.06;
+      splashCamY += (-splashPointerY * 30 * parallax - splashCamY) * 0.06;
+      camera.position.x = splashCamX;
+      camera.position.y = splashCamY;
+      camera.position.z = splashCfg.camZ - wEase * 60;
+      var targetFov = 62 + w * 14;
+      if (Math.abs(camera.fov - targetFov) > 0.01) {
+        camera.fov = targetFov;
+        camera.updateProjectionMatrix();
+      }
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    }
+
+    requestAnimationFrame(splashFrame);
+  }
+
+  function bootSplashCanvasFallback() {
+    if (!splashCanvas || splashReducedMotion || splashSceneClaimed) return;
+    splashSceneClaimed = true;
+
+    var ctx = splashCanvas.getContext('2d');
+    var live = true;
+    var width = 0;
+    var height = 0;
+    var dpr = 1;
+    var state2d = 'idle';
+    var clickTime2d = 0;
+    var startedAt2d = performance.now();
+    var warp2d = 0;
+    var revealed2d = false;
+    var finished2d = false;
+    var dissolved2d = false;
+    var pointerX2d = 0;
+    var pointerY2d = 0;
+    var atoms2d = [];
+    var burst2d = [];
+
+    function resize2d() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      splashCanvas.width = Math.max(1, Math.floor(width * dpr));
+      splashCanvas.height = Math.max(1, Math.floor(height * dpr));
+      splashCanvas.style.width = width + 'px';
+      splashCanvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function color2d() {
+      var colors = ['rgba(110,197,255,', 'rgba(74,159,224,', 'rgba(255,95,208,', 'rgba(255,200,58,'];
+      return colors[(Math.random() * colors.length) | 0];
+    }
+
+    function spawn2d(atom, farOnly) {
+      atom.x = (Math.random() - 0.5) * 1700;
+      atom.y = (Math.random() - 0.5) * 1050;
+      atom.z = farOnly ? -2700 + Math.random() * 160 : -2700 + Math.random() * 3420;
+      atom.pz = atom.z;
+      atom.v = 0.75 + Math.random() * 1.15;
+      atom.wob = 0.3 + Math.random() * 0.9;
+      atom.phase = Math.random() * Math.PI * 2;
+      atom.c = atom.c || color2d();
+    }
+
+    function project2d(atom) {
+      var f = 720;
+      var scale = f / (f - atom.z);
+      return {
+        x: width / 2 + atom.x * scale,
+        y: height / 2 + atom.y * scale,
+        s: scale
+      };
+    }
+
+    function smooth2d(t) {
+      t = Math.max(0, Math.min(1, t));
+      return t * t * (3 - 2 * t);
+    }
+
+    function warpAt2d(ms) {
+      if (ms < 900) return smooth2d(ms / 900) * 0.4;
+      if (ms < 2100) return 0.4 + smooth2d((ms - 900) / 1200) * 0.6;
+      return 1 - smooth2d((ms - 2100) / 950) * 0.94;
+    }
+
+    function drawLogo2d(t, ease, w) {
+      if (dissolved2d) return;
+      var cx = width / 2 + pointerX2d * 18 * (1 - w);
+      var cy = height / 2 - pointerY2d * 14 * (1 - w);
+      var base = Math.min(width, height) * 0.28;
+      var scale = (1 + Math.sin(t * 1.4) * 0.018) * (1 + ease * 5.4);
+      var size = base * scale;
+      var alpha = Math.max(0, Math.min(1, t * 0.7)) * Math.max(0, 1 - ease * 0.28);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = alpha;
+      for (var r = 0; r < 2; r++) {
+        ctx.save();
+        ctx.rotate(t * (r ? -0.7 : 1.05));
+        ctx.strokeStyle = r ? 'rgba(255,95,208,.35)' : 'rgba(110,197,255,.55)';
+        ctx.lineWidth = Math.max(1, size * (r ? 0.006 : 0.008));
+        ctx.beginPath();
+        ctx.arc(0, 0, size * (r ? 0.67 : 0.56), 0, Math.PI * 2);
+        ctx.stroke();
+        for (var i = 0; i < 48; i++) {
+          var a = i / 48 * Math.PI * 2;
+          var inner = size * (r ? 0.69 : 0.58);
+          var outer = inner + (i % 6 === 0 ? size * 0.04 : size * 0.022);
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+          ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.shadowColor = 'rgba(110,197,255,.62)';
+      ctx.shadowBlur = size * 0.12;
+      var grd = ctx.createRadialGradient(-size * 0.12, -size * 0.18, 0, 0, 0, size * 0.5);
+      grd.addColorStop(0, 'rgba(150,210,255,.95)');
+      grd.addColorStop(0.55, 'rgba(16,72,132,.95)');
+      grd.addColorStop(1, 'rgba(8,22,42,.82)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 0.48, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#eaf5ff';
+      ctx.font = '900 ' + Math.round(size * 0.34) + 'px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('WK', 0, size * 0.035);
+      ctx.restore();
+    }
+
+    function fireBurst2d() {
+      burst2d.length = 0;
+      for (var i = 0; i < 150; i++) {
+        var a = Math.random() * Math.PI * 2;
+        var v = 2 + Math.random() * 12;
+        burst2d.push({
+          x: width / 2,
+          y: height / 2,
+          vx: Math.cos(a) * v,
+          vy: Math.sin(a) * v,
+          life: 1,
+          c: color2d()
+        });
+      }
+    }
+
+    function draw2d(now) {
+      if (!live) return;
+      requestAnimationFrame(draw2d);
+      var t = (now - startedAt2d) / 1000;
+      if (state2d === 'warping') {
+        var ms = now - clickTime2d;
+        warp2d = warpAt2d(ms);
+        if (ms >= 2400 && !revealed2d) {
+          revealed2d = true;
+          revealSplashContent();
+        }
+        if (ms >= 3450 && !finished2d) {
+          finished2d = true;
+          finishSplashContent();
+        }
+      }
+
+      var w = Math.max(0, Math.min(1, warp2d));
+      var ease = smooth2d(state2d === 'warping' ? Math.min((now - clickTime2d) / 2100, 1) : 0);
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#070b12';
+      ctx.fillRect(0, 0, width, height);
+      var bg = ctx.createRadialGradient(width / 2, height * 0.42, 0, width / 2, height * 0.42, Math.max(width, height) * 0.62);
+      bg.addColorStop(0, 'rgba(20,52,104,.42)');
+      bg.addColorStop(0.62, 'rgba(20,52,104,0)');
+      bg.addColorStop(1, 'rgba(5,8,14,.5)');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.globalCompositeOperation = 'lighter';
+      for (var i = 0; i < atoms2d.length; i++) {
+        var atom = atoms2d[i];
+        atom.pz = atom.z;
+        atom.z += atom.v * (0.55 + w * w * 210);
+        if (w < 0.5) {
+          atom.x += Math.sin(t * atom.wob + atom.phase) * 0.18 * (1 - w);
+          atom.y += Math.cos(t * atom.wob * 0.8 + atom.phase) * 0.15 * (1 - w);
+        }
+        if (atom.z > 700) spawn2d(atom, true);
+        var p = project2d(atom);
+        var radius = Math.max(0.7, Math.min(12, p.s * (24 + w * 20)));
+        var alpha = Math.max(0.08, Math.min(0.9, p.s * 2.4));
+        if (w > 0.08) {
+          var tail = Math.min((atom.z - atom.pz) * (0.5 + w * 2.2), 180);
+          ctx.strokeStyle = atom.c + (0.16 + w * 0.34) + ')';
+          ctx.lineWidth = Math.max(1, radius * 0.42);
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x, p.y + tail);
+          ctx.stroke();
+        }
+        ctx.fillStyle = atom.c + alpha + ')';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (ease > 0.78 && !dissolved2d) {
+        dissolved2d = true;
+        fireBurst2d();
+        if (splashFlash) splashFlash.classList.add('fire');
+      }
+
+      for (var b = burst2d.length - 1; b >= 0; b--) {
+        var bit = burst2d[b];
+        bit.life -= 0.022;
+        bit.x += bit.vx;
+        bit.y += bit.vy;
+        ctx.fillStyle = bit.c + Math.max(0, bit.life) + ')';
+        ctx.beginPath();
+        ctx.arc(bit.x, bit.y, 3 + bit.life * 8, 0, Math.PI * 2);
+        ctx.fill();
+        if (bit.life <= 0) burst2d.splice(b, 1);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      drawLogo2d(t, ease, w);
+    }
+
+    function enter2d() {
+      state2d = 'warping';
+      splash.classList.add('warping');
+      clickTime2d = performance.now();
+    }
+
+    function move2d(e) {
+      pointerX2d = (e.clientX / window.innerWidth - 0.5) * 2;
+      pointerY2d = (e.clientY / window.innerHeight - 0.5) * 2;
+    }
+
+    window.addEventListener('resize', resize2d);
+    window.addEventListener('pointermove', move2d);
+    resize2d();
+    for (var i = 0; i < 150; i++) {
+      var atom = {};
+      spawn2d(atom, false);
+      atoms2d.push(atom);
+    }
+    splashEnter3d = enter2d;
+    splashStop3d = function() {
+      live = false;
+      window.removeEventListener('resize', resize2d);
+      window.removeEventListener('pointermove', move2d);
+    };
+    requestAnimationFrame(draw2d);
+  }
+
+  loadSplashThree([
+    'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+    'https://unpkg.com/three@0.128.0/build/three.min.js'
+  ], 0);
+  window.setTimeout(bootSplashCanvasFallback, 1200);
 
   /* ===== PROJECTS ===== */
   var PROJECTS = {
